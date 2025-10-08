@@ -5,6 +5,8 @@ require('./config/firebase.config.js');
 
 const authRoutes = require('./api/routes/auth.routes');// Importamos la configuración de Firebase
 const userRoutes = require('./api/routes/user.routes');
+const serviceRoutes = require('./api/routes/service.routes');
+const orderRoutes = require('./api/routes/order.routes');
 
 // Se crea la instancia de la aplicación Express
 const app = express();
@@ -15,6 +17,8 @@ app.use(express.json());
 // Importamos las rutas de autenticación
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/servicios', serviceRoutes);
+app.use('/api/v1/orders', orderRoutes);
 
 
 // Exportamos la app para que server.js pueda usarla
