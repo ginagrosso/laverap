@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
-const { protect } = require('../middlewares/auth.middleware'); // <-- Importamos nuestro middleware
+const { protect, authorize } = require('../middlewares/auth.middleware'); // <-- Importamos nuestro middleware
 
 // GET /api/v1/users/me
 // Esta ruta está protegida. Primero se ejecuta el middleware "protect"
 // y solo si el token es válido, se ejecutará "userController.getMe"
 router.get('/me', protect, userController.getMe);
+
+// --- NUEVA RUTA SOLO PARA ADMIN ---
+// Ruta para obtener todos los usuarios.
+// Primero se ejecuta 'protect' (para verificar el login)
+// Luego se ejecuta 'authorize' (para verificar que el rol sea 'admin')
+router.get('/', protect, authorize('admin'), userController.getUsers);
 
 module.exports = router;
