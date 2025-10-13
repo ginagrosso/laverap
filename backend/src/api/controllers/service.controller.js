@@ -12,4 +12,25 @@ const getServices = async (req, res) => {
     }
 };
 
-module.exports = { getServices };
+// --- NUEVA FUNCIÓN PARA CREAR SERVICIOS ---
+
+const createService = async (req, res) => {
+    try {
+        const serviceData = req.body;
+        
+        const newService = await serviceService.createService(serviceData);
+        
+        res.status(201).json({
+            message: 'Servicio creado exitosamente.',
+            data: newService,
+        });
+    } catch (error) {
+        // Si el error viene de nuestras validaciones, es un error del cliente (400)
+        // Si es otro tipo de error, será un error del servidor (500)
+        console.error("Error al crear servicio:", error.message);
+        res.status(400).json({ message: error.message });
+    }
+};
+
+
+module.exports = { getServices , createService };
