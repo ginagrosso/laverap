@@ -1,9 +1,28 @@
 const db = require('../../config/firebase.config'); // Importamos la conexión a Firestore
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const joi = require('joi');
+
+// Esquemas de validación con Joi
+const registerSchema = joi.object({
+  nombre: joi.string().min(2).max(50).required(),
+  email: joi.string().email().lowercase().required(),
+  password: joi.string().min(6).max(128).required()
+});
+
+const loginSchema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().required()
+});
 
 const registerNewUser = async (userData) => {
-  const { nombre, email, password } = userData;
+  // Validar datos de entrada con Joi
+  const { error, value } = registerSchema.validate(userData);
+  if (error) {
+    throw new Error(`Error de validación: ${error.details[0].message}`);
+  }
+
+  const { nombre, email, password } = value;
 
   // 1. Verificar si el usuario ya existe
   const usersRef = db.collection('clientes'); // Usamos la colección 'clientes' como en tu diagrama
@@ -38,52 +57,58 @@ const registerNewUser = async (userData) => {
   };
 };
 
-// --- NUEVA FUNCIÓN PARA EL LOGIN ---
+// --- FUNCIÓN PARA EL LOGIN ---
 const loginUser = async (loginData) => {
-    const { email, password } = loginData;
-  
-    // 1. Buscar al usuario por su correo electrónico
-    const usersRef = db.collection('clientes');
-    const snapshot = await usersRef.where('email', '==', email).get();
-  
-    if (snapshot.empty) {
-      throw new Error('Credenciales inválidas.'); // Error genérico por seguridad
-    }
-  
-    // 2. Obtener los datos del usuario encontrado
-    const userDoc = snapshot.docs[0];
-    const userData = userDoc.data();
-    const userId = userDoc.id;
-  
-    // 3. Comparar la contraseña enviada con la contraseña hasheada en la BD
-    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
-  
-    if (!isPasswordCorrect) {
-      throw new Error('Credenciales inválidas.'); // Mismo error genérico
-    }
-  
-    // 4. Si la contraseña es correcta, generar un JWT
-    const payload = {
-      id: userId,
-      email: userData.email,
-      rol: userData.rol,
-    };
-  
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    });
-  
-    // 5. Devolver los datos del usuario y el token
-    return {
-      usuario: {
-        id: userId,
-        nombre: userData.nombre,
-        email: userData.email,
-        rol: userData.rol
-      },
-      token: token
-    };
+  // Validar datos de entrada con Joi
+  const { error, value } = loginSchema.validate(loginData);
+  if (error) {
+    throw new Error(`Error de validación: ${error.details[0].message}`);
+  }
+
+  const { email, password } = value;
+
+  // 1. Buscar al usuario por su correo electrónico
+  const usersRef = db.collection('clientes');
+  const snapshot = await usersRef.where('email', '==', email).get();
+
+  if (snapshot.empty) {
+    throw new Error('Credenciales inválidas.'); // Error genérico por seguridad
+  }
+
+  // 2. Obtener los datos del usuario encontrado
+  const userDoc = snapshot.docs[0];
+  const userData = userDoc.data();
+  const userId = userDoc.id;
+
+  // 3. Comparar la contraseña enviada con la contraseña hasheada en la BD
+  const isPasswordCorrect = await bcrypt.compare(password, userData.password);
+
+  if (!isPasswordCorrect) {
+    throw new Error('Credenciales inválidas.'); // Mismo error genérico
+  }
+
+  // 4. Si la contraseña es correcta, generar un JWT
+  const payload = {
+    id: userId,
+    email: userData.email,
+    rol: userData.rol,
   };
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
+  // 5. Devolver los datos del usuario y el token
+  return {
+    usuario: {
+      id: userId,
+      nombre: userData.nombre,
+      email: userData.email,
+      rol: userData.rol
+    },
+    token: token
+  };
+};
 
 module.exports = {
   registerNewUser,
