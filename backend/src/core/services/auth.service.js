@@ -15,11 +15,6 @@ const loginSchema = joi.object({
   password: joi.string().required()
 });
 
-/**
- * Registra un nuevo usuario en el sistema
- * @param {Object} userData - Datos del usuario (nombre, email, password)
- * @returns {Object} - Usuario creado sin contraseña
- */
 const registerNewUser = async (userData) => {
   // Validar datos de entrada con Joi
   const { error, value } = registerSchema.validate(userData);
