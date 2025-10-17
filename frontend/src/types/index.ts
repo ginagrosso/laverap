@@ -4,7 +4,12 @@ export type UserRole = "Cliente" | "Administrador" | "Empleado" | "Dueño";
 
 export type OrderStatus = "Recibido" | "En Proceso" | "Listo" | "Entregado";
 
-export type PricingModel = "porCanasto" | "porUnidad";
+export type PricingModel =
+  | "porCanasto"
+  | "porUnidad"
+  | "paqueteConAdicional"
+  | "porOpciones"
+  | "porOpcionesMultiples";
 
 export interface User {
   id: string;
@@ -32,32 +37,48 @@ export interface RegisterData {
   rol?: UserRole;
 }
 
-// Service pricing models
-export interface ServiceCanastoDetail {
-  cantidadPrendasNormales?: number;
-  cantidadSabanas2Plazas?: number;
-}
-
-export interface ServiceUnidadDetail {
+// Order detail structures for different pricing models
+export interface PaqueteConAdicionalDetail {
   cantidad: number;
-  opciones?: Record<string, string>;
+  incluyePlanchado?: boolean;
 }
 
-export type OrderDetail = ServiceCanastoDetail | ServiceUnidadDetail;
+export interface PorOpcionesMultiplesDetail {
+  cantidad: number;
+  opciones: Record<string, string>; // e.g., { "tamaño": "grande", "tipo": "delicado" }
+}
+
+export interface PorOpcionesDetail {
+  cantidad: number;
+  opcion: string; // e.g., "express"
+}
+
+export type OrderDetail =
+  | PaqueteConAdicionalDetail
+  | PorOpcionesMultiplesDetail
+  | PorOpcionesDetail;
 
 export interface Service {
   id: string;
   nombre: string;
   descripcion?: string;
   modeloDePrecio: PricingModel;
+
   // For porCanasto
   precioPorCanasto?: number;
   itemsPorCanasto?: number;
   minimoItems?: number;
+
   // For porUnidad
   precioBase?: number;
   minimoUnidades?: number;
   opcionesDePrecio?: Record<string, Record<string, number>>;
+
+  // For paqueteConAdicional
+  adicionales?: Record<string, number>; // e.g., { "planchado": 50 }
+
+  // For porOpciones
+  opciones?: Record<string, number | Record<string, number>>; // Can be flat or nested
 }
 
 export interface Order {

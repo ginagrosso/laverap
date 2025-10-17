@@ -1,10 +1,7 @@
-import { EstimatorForm } from "@/components/EstimatorForm";
+import { CreateOrderForm } from "@/components/CreateOrderForm";
 import { Footer } from "@/components/Footer";
 
 export default function CreateOrder() {
-  // TODO: Convert EstimatorForm to use actual backend API
-  // For now, reusing the existing component as a placeholder
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -18,7 +15,7 @@ export default function CreateOrder() {
       </section>
 
       {/* Form Section */}
-      <EstimatorForm />
+      <CreateOrderForm />
 
       <Footer />
     </div>

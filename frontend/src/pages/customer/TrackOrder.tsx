@@ -1,37 +1,17 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Clock, Loader2, CheckCircle, TruckIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Package, Clock, Loader2, CheckCircle, TruckIcon, AlertCircle } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
-// TODO: Replace with actual API call using useAuth token
-const mockOrders = [
-  {
-    id: "LVR-1234",
-    servicio: { nombre: "Lavado Express" },
-    estado: "En Proceso" as const,
-    precioEstimado: 1600,
-    fechaCreacion: new Date("2025-10-08"),
-    detalle: { cantidadPrendasNormales: 15, cantidadSabanas2Plazas: 1 },
-  },
-  {
-    id: "LVR-1200",
-    servicio: { nombre: "Planchado" },
-    estado: "Listo" as const,
-    precioEstimado: 900,
-    fechaCreacion: new Date("2025-10-06"),
-    detalle: { cantidad: 6 },
-  },
-  {
-    id: "LVR-1180",
-    servicio: { nombre: "Lavado Express" },
-    estado: "Entregado" as const,
-    precioEstimado: 800,
-    fechaCreacion: new Date("2025-10-03"),
-    detalle: { cantidadPrendasNormales: 10 },
-  },
-];
+import { getMyOrders } from "@/lib/orders";
+import { useAuth } from "@/context/AuthContext";
+import { Order } from "@/types";
 
 const statusConfig = {
   "Recibido": {
@@ -64,7 +44,43 @@ const statusConfig = {
   },
 };
 
+const formatDate = (date: Date | { seconds: number; nanoseconds: number }) => {
+  if (date instanceof Date) {
+    return format(date, "dd MMM yyyy", { locale: es });
+  }
+  // Handle Firestore timestamp
+  return format(new Date(date.seconds * 1000), "dd MMM yyyy", { locale: es });
+};
+
 export default function TrackOrder() {
+  const { token, isAuthenticated } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!isAuthenticated || !token) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await getMyOrders(token);
+        setOrders(data);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("No pudimos cargar tus pedidos. Por favor, intentá nuevamente.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [token, isAuthenticated]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -80,19 +96,61 @@ export default function TrackOrder() {
       {/* Orders List */}
       <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          {mockOrders.length === 0 ? (
+          {/* Loading State */}
+          {isLoading && (
+            <div className="space-y-6">
+              {[...Array(3)].map((_, i) => (
+                <Card key={i}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <Skeleton className="h-8 w-32 mb-2" />
+                        <Skeleton className="h-4 w-48" />
+                      </div>
+                      <Skeleton className="h-8 w-24" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[...Array(3)].map((_, j) => (
+                        <Skeleton key={j} className="h-20 w-full" />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !isLoading && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && orders.length === 0 && (
             <Card>
               <CardContent className="py-12 text-center">
                 <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">No tenés pedidos aún</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-6">
                   Creá tu primer pedido para comenzar
                 </p>
+                <Button asChild>
+                  <Link to="/order/new">Crear pedido</Link>
+                </Button>
               </CardContent>
             </Card>
-          ) : (
+          )}
+
+          {/* Orders List */}
+          {!isLoading && !error && orders.length > 0 && (
             <div className="space-y-6">
-              {mockOrders.map((order) => {
+              {orders.map((order) => {
                 const config = statusConfig[order.estado];
                 const Icon = config.icon;
 
@@ -132,10 +190,18 @@ export default function TrackOrder() {
                             Fecha
                           </p>
                           <p className="font-semibold">
-                            {format(order.fechaCreacion, "dd MMM yyyy", { locale: es })}
+                            {formatDate(order.fechaCreacion)}
                           </p>
                         </div>
                       </div>
+
+                      {/* Observaciones */}
+                      {order.observaciones && (
+                        <div className="mt-4 p-3 bg-muted rounded-lg">
+                          <p className="text-sm text-muted-foreground mb-1">Observaciones:</p>
+                          <p className="text-sm">{order.observaciones}</p>
+                        </div>
+                      )}
 
                       {/* Progress Bar */}
                       <div className="mt-6">

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { User, AuthResponse, LoginCredentials, RegisterData } from "@/types";
+import { User, LoginCredentials, RegisterData } from "@/types";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
@@ -45,15 +45,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      const response = await api.post<AuthResponse>("/auth/login", credentials);
+      // Backend returns: { message: string, data: { usuario: User, token: string } }
+      const response = await api.post<{ message: string; data: { usuario: User; token: string } }>(
+        "/auth/login",
+        credentials
+      );
 
-      setToken(response.token);
-      setUser(response.user);
+      // Extract token and user from nested structure
+      const { token: authToken, usuario } = response.data;
 
-      localStorage.setItem(TOKEN_KEY, response.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      setToken(authToken);
+      setUser(usuario);
 
-      toast.success(`¡Bienvenido, ${response.user.nombre}!`);
+      localStorage.setItem(TOKEN_KEY, authToken);
+      localStorage.setItem(USER_KEY, JSON.stringify(usuario));
+
+      toast.success(`¡Bienvenido, ${usuario.nombre}!`);
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Error al iniciar sesión. Verificá tus credenciales.");
@@ -63,15 +70,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (data: RegisterData) => {
     try {
-      const response = await api.post<AuthResponse>("/auth/register", data);
+      // Backend returns: { message: string, usuario: User }
+      // Note: Register does NOT return a token, so we need to login after registration
+      const response = await api.post<{ message: string; usuario: User }>(
+        "/auth/register",
+        data
+      );
 
-      setToken(response.token);
-      setUser(response.user);
+      toast.success(`¡Cuenta creada exitosamente! Bienvenido, ${response.usuario.nombre}!`);
 
-      localStorage.setItem(TOKEN_KEY, response.token);
-      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
-
-      toast.success(`¡Cuenta creada exitosamente! Bienvenido, ${response.user.nombre}!`);
+      // Automatically login after successful registration
+      await login({ email: data.email, password: data.password });
     } catch (error) {
       console.error("Registration error:", error);
       toast.error("Error al crear la cuenta. Intentá nuevamente.");
