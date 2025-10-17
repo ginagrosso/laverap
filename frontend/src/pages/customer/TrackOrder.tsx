@@ -44,12 +44,36 @@ const statusConfig = {
   },
 };
 
-const formatDate = (date: Date | { seconds: number; nanoseconds: number }) => {
-  if (date instanceof Date) {
-    return format(date, "dd MMM yyyy", { locale: es });
+const formatDate = (date: Date | string | any) => {
+  try {
+    // Handle Firestore Timestamp object (has _seconds property)
+    if (date && typeof date === 'object' && ('_seconds' in date || 'seconds' in date)) {
+      const seconds = date._seconds || date.seconds;
+      const milliseconds = seconds * 1000;
+      return format(new Date(milliseconds), "dd MMM yyyy", { locale: es });
+    }
+
+    // Handle Firestore Timestamp object (has toDate method)
+    if (date && typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
+      return format(date.toDate(), "dd MMM yyyy", { locale: es });
+    }
+
+    // Handle Date object
+    if (date instanceof Date) {
+      return format(date, "dd MMM yyyy", { locale: es });
+    }
+
+    // Handle ISO string from backend
+    if (typeof date === 'string') {
+      return format(new Date(date), "dd MMM yyyy", { locale: es });
+    }
+
+    // Fallback
+    return "Fecha inválida";
+  } catch (error) {
+    console.error("Error formatting date:", error, date);
+    return "Fecha inválida";
   }
-  // Handle Firestore timestamp
-  return format(new Date(date.seconds * 1000), "dd MMM yyyy", { locale: es });
 };
 
 export default function TrackOrder() {
@@ -82,7 +106,7 @@ export default function TrackOrder() {
   }, [token, isAuthenticated]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <section className="py-12 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
@@ -94,7 +118,7 @@ export default function TrackOrder() {
       </section>
 
       {/* Orders List */}
-      <section className="py-12">
+      <section className="py-12 flex-1">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Loading State */}
           {isLoading && (
