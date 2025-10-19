@@ -75,7 +75,7 @@ export const CreateOrderForm = () => {
             incluyePlanchado,
           }),
         },
-        observaciones: observaciones || undefined,
+        observaciones: observaciones.trim() || null,
       };
 
       const order = await createOrder(orderData, token);

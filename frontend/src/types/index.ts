@@ -1,6 +1,6 @@
 // Type definitions based on backend contracts
 
-export type UserRole = "Cliente" | "Administrador" | "Empleado" | "Dueño";
+export type UserRole = "cliente" | "admin" | "empleado" | "dueño";
 
 export type OrderStatus = "Recibido" | "En Proceso" | "Listo" | "Entregado";
 
@@ -89,14 +89,14 @@ export interface Order {
     nombre: string;
   };
   detalle: OrderDetail;
-  observaciones?: string;
+  observaciones: string | null;
   precioEstimado: number;
   estado: OrderStatus;
-  fechaCreacion: Date | { seconds: number; nanoseconds: number }; // Firestore timestamp
+  fechaCreacion: Date | string; // Backend should serialize to ISO string
 }
 
 export interface CreateOrderRequest {
   servicioId: string;
   detalle: OrderDetail;
-  observaciones?: string;
+  observaciones?: string | null;
 }

@@ -25,13 +25,25 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden");
+    // Validate nombre (2-50 chars) - matching backend joi schema
+    if (formData.nombre.trim().length < 2 || formData.nombre.trim().length > 50) {
+      setError("El nombre debe tener entre 2 y 50 caracteres");
       return;
     }
 
+    // Validate password (6-128 chars) - matching backend joi schema
     if (formData.password.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    if (formData.password.length > 128) {
+      setError("La contraseña no puede exceder 128 caracteres");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden");
       return;
     }
 
@@ -39,11 +51,11 @@ export default function Register() {
 
     try {
       await register({
-        nombre: formData.nombre,
-        email: formData.email,
+        nombre: formData.nombre.trim(),
+        email: formData.email.toLowerCase().trim(), // Backend normalizes to lowercase
         telefono: formData.telefono || undefined,
         password: formData.password,
-        rol: "Cliente", // Default role for registration
+        rol: "cliente", // Changed to match backend: lowercase "cliente" instead of "Cliente"
       });
       navigate("/");
     } catch (error) {

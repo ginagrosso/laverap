@@ -98,6 +98,7 @@ See "Known Limitations" section in:
 | [CLAUDE.md](CLAUDE.md) | Project architecture, team structure | Developers, AI Assistants |
 | [README.md](README.md) | Project overview, quick start | Everyone |
 | [API_DOCUMENTATION.md](API_DOCUMENTATION.md) | Backend API reference | Developers |
+| [CONSISTENCY_AUDIT_REPORT.md](CONSISTENCY_AUDIT_REPORT.md) | Frontend-Backend-Firebase consistency audit | Developers, PM |
 
 ### Integration & Setup
 | Document | Purpose | Audience |
@@ -105,6 +106,7 @@ See "Known Limitations" section in:
 | [INTEGRATION_COMPLETE.md](INTEGRATION_COMPLETE.md) | Current status, go/no-go | PM, Developers, Testers |
 | [INTEGRATION_SUMMARY.md](INTEGRATION_SUMMARY.md) | What changed and why | Developers |
 | [PRE_LAUNCH_CHECKLIST.md](PRE_LAUNCH_CHECKLIST.md) | Pre-testing verification | Testers, DevOps |
+| [FRONTEND_BACKEND_SYNC.md](FRONTEND_BACKEND_SYNC.md) | Frontend synchronization with backend | Developers |
 
 ### Testing
 | Document | Purpose | Audience |
@@ -225,6 +227,14 @@ Read in order:
 
 ## 🆕 What's New (Latest Updates)
 
+**2025-10-17:**
+- ✅ **[CONSISTENCY_AUDIT_REPORT.md](CONSISTENCY_AUDIT_REPORT.md)** - Complete audit of frontend-backend-Firebase consistency
+- ✅ **[FRONTEND_BACKEND_SYNC.md](FRONTEND_BACKEND_SYNC.md)** - Frontend synchronized with backend contracts
+- ✅ Fixed UserRole types (Cliente→cliente, Administrador→admin)
+- ✅ Fixed observaciones type (undefined→null)
+- ✅ Updated form validation to match backend Joi schemas
+- ✅ Improved timestamp handling
+
 **2025-10-16:**
 - ✅ Frontend-backend integration complete
 - ✅ All API modules created (services, orders, users)
@@ -285,9 +295,9 @@ Based on your role:
 
 ## 📊 Documentation Statistics
 
-**Total Documents:** 9 comprehensive guides
-**Total Pages:** ~150 pages of documentation
-**Code Examples:** 50+ code snippets
+**Total Documents:** 11 comprehensive guides
+**Total Pages:** ~180 pages of documentation
+**Code Examples:** 60+ code snippets
 **Test Scenarios:** 9 detailed scenarios
 **API Endpoints:** 8 fully documented
 
@@ -301,6 +311,8 @@ Based on your role:
 - ✅ Pre-Launch Checklist (PRE_LAUNCH_CHECKLIST.md)
 - ✅ Integration Summary (INTEGRATION_SUMMARY.md)
 - ✅ Status Overview (INTEGRATION_COMPLETE.md)
+- ✅ Consistency Audit (CONSISTENCY_AUDIT_REPORT.md)
+- ✅ Frontend-Backend Sync (FRONTEND_BACKEND_SYNC.md)
 
 ---
 
@@ -318,6 +330,6 @@ All documentation includes:
 
 ---
 
-**Last Updated:** 2025-10-16
+**Last Updated:** 2025-10-17
 **Maintained By:** Development Team
 **Status:** ✅ Complete and up-to-date
