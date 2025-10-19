@@ -11,6 +11,10 @@ export class ApiError extends Error {
     super(message);
     this.name = "ApiError";
   }
+
+  isUnauthorized(): boolean {
+    return this.status === 401;
+  }
 }
 
 interface RequestOptions extends RequestInit {

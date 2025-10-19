@@ -31,15 +31,16 @@ export function Navbar() {
     { to: "/order/track", label: "Mis Pedidos" },
   ];
 
-  const isAdminUser = hasRole("Administrador", "Empleado", "Dueño");
+  const isAdminUser = hasRole("admin", "empleado", "dueño");
 
   return (
     <nav className="border-b bg-background sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="font-bold text-2xl text-primary">
-            Laverapp
+          <Link to="/" className="flex items-center gap-2 font-bold text-2xl text-primary">
+            <img src="/laverap-logo.svg" alt="Laverap Logo" className="w-10 h-10" />
+            <span>Laverap</span>
           </Link>
 
           {/* Desktop Navigation */}

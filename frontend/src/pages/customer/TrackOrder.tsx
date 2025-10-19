@@ -77,7 +77,7 @@ const formatDate = (date: Date | string | any) => {
 };
 
 export default function TrackOrder() {
-  const { token, isAuthenticated } = useAuth();
+  const { token, isAuthenticated, handleApiError } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +96,7 @@ export default function TrackOrder() {
         setOrders(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
+        handleApiError(err);
         setError("No pudimos cargar tus pedidos. Por favor, intentá nuevamente.");
       } finally {
         setIsLoading(false);
@@ -103,7 +104,7 @@ export default function TrackOrder() {
     };
 
     fetchOrders();
-  }, [token, isAuthenticated]);
+  }, [token, isAuthenticated, handleApiError]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

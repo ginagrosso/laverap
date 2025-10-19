@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, LoginCredentials, RegisterData } from "@/types";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
 
 interface AuthContextType {
@@ -12,6 +12,7 @@ interface AuthContextType {
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   hasRole: (...roles: string[]) => boolean;
+  handleApiError: (error: unknown) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,6 +102,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return roles.includes(user.rol);
   };
 
+  // Manejo de errores de API - cierra sesión si el token es inválido
+  const handleApiError = (error: unknown) => {
+    if (error instanceof ApiError && error.isUnauthorized()) {
+      // Token inválido o expirado - cerrar sesión automáticamente
+      logout();
+      toast.error("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -110,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     hasRole,
+    handleApiError,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
