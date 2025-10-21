@@ -1,16 +1,15 @@
-import { ArrowDown } from "lucide-react";
 import { Button } from "./ui/button";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import heroImage from "@/assets/hero-laundry.jpg";
 
 export const Hero = () => {
-  const scrollToEstimator = () => {
-    document.getElementById("estimator")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const { isAuthenticated } = useAuth();
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Background Image with Overlay */}
-      <div 
+      <div
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: `url(${heroImage})`,
@@ -32,20 +31,16 @@ export const Hero = () => {
         <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto opacity-95">
           Solicitá, seguí y pagá en el local. Todo en un solo lugar.
         </p>
-        
+
         <Button
           size="lg"
-          onClick={scrollToEstimator}
+          asChild
           className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 shadow-lg transition-all hover:scale-105"
         >
-          Crear mi pedido
-          <ArrowDown className="ml-2 animate-bounce" />
+          <Link to={isAuthenticated ? "/order/new" : "/register"}>
+            {isAuthenticated ? "Crear mi pedido" : "Comenzar ahora"}
+          </Link>
         </Button>
-      </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-        <ArrowDown className="text-white/80 w-8 h-8" />
       </div>
     </section>
   );
