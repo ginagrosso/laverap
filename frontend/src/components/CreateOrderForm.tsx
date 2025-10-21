@@ -8,7 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Skeleton } from "./ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getServices } from "@/lib/services";
 import { createOrder } from "@/lib/orders";
@@ -27,6 +27,8 @@ export const CreateOrderForm = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [cantidad, setCantidad] = useState<number>(1);
   const [incluyePlanchado, setIncluyePlanchado] = useState(false);
+  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
+  const [opcionesMultiples, setOpcionesMultiples] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState<string>("");
 
   // Load services
@@ -49,6 +51,14 @@ export const CreateOrderForm = () => {
 
   const selectedService = services.find((s) => s.id === selectedServiceId);
 
+  // Reset options when service changes
+  useEffect(() => {
+    setOpcionSeleccionada("");
+    setOpcionesMultiples({});
+    setIncluyePlanchado(false);
+    setCantidad(1);
+  }, [selectedServiceId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -67,14 +77,41 @@ export const CreateOrderForm = () => {
 
     try {
       // Build the order request based on service type
+      let detalle: any = { cantidad };
+
+      switch (selectedService?.modeloDePrecio) {
+        case "paqueteConAdicional":
+          detalle.incluyePlanchado = incluyePlanchado;
+          break;
+        case "porOpciones":
+          if (!opcionSeleccionada) {
+            toast.error("Por favor seleccioná una opción");
+            setIsSubmitting(false);
+            return;
+          }
+          detalle.opcion = opcionSeleccionada;
+          break;
+        case "porOpcionesMultiples":
+          if (!selectedService.opciones) {
+            toast.error("Este servicio no tiene opciones configuradas");
+            setIsSubmitting(false);
+            return;
+          }
+          const categorias = Object.keys(selectedService.opciones);
+          for (const categoria of categorias) {
+            if (!opcionesMultiples[categoria]) {
+              toast.error(`Por favor seleccioná una opción para ${categoria}`);
+              setIsSubmitting(false);
+              return;
+            }
+          }
+          detalle.opciones = opcionesMultiples;
+          break;
+      }
+
       const orderData: CreateOrderRequest = {
         servicioId: selectedServiceId,
-        detalle: {
-          cantidad,
-          ...(selectedService?.modeloDePrecio === "paqueteConAdicional" && {
-            incluyePlanchado,
-          }),
-        },
+        detalle,
         observaciones: observaciones.trim() || null,
       };
 
@@ -109,6 +146,37 @@ export const CreateOrderForm = () => {
         total = cantidad * (selectedService.precioBase || 0);
         if (incluyePlanchado && selectedService.adicionales?.planchado) {
           total += cantidad * selectedService.adicionales.planchado;
+        }
+        break;
+
+      case "porOpciones":
+        if (opcionSeleccionada && selectedService.opciones) {
+          const precioOpcion = selectedService.opciones[opcionSeleccionada];
+          if (typeof precioOpcion === 'number') {
+            total = cantidad * precioOpcion;
+          }
+        }
+        break;
+
+      case "porOpcionesMultiples":
+        if (selectedService.opciones) {
+          let precioCalculado = selectedService.precioBase || 0;
+          const categorias = Object.keys(selectedService.opciones);
+
+          for (const categoria of categorias) {
+            const seleccion = opcionesMultiples[categoria];
+            if (seleccion) {
+              const opcionesCat = selectedService.opciones[categoria];
+              if (typeof opcionesCat === 'object' && !Array.isArray(opcionesCat)) {
+                const valorOpcion = opcionesCat[seleccion];
+                if (typeof valorOpcion === 'number') {
+                  precioCalculado += valorOpcion;
+                }
+              }
+            }
+          }
+
+          total = cantidad * precioCalculado;
         }
         break;
 
@@ -228,12 +296,67 @@ export const CreateOrderForm = () => {
                         onChange={(e) => setIncluyePlanchado(e.target.checked)}
                         className="w-4 h-4"
                         disabled={isSubmitting}
+                        aria-label="Incluir planchado"
                       />
                       <Label htmlFor="planchado" className="cursor-pointer">
                         Incluir planchado (+${selectedService.adicionales.planchado} por paquete)
                       </Label>
                     </div>
                   )}
+
+                {/* Opción simple para porOpciones */}
+                {selectedService?.modeloDePrecio === "porOpciones" && selectedService.opciones && (
+                  <div className="space-y-2">
+                    <Label htmlFor="opcion">Seleccionar opción *</Label>
+                    <Select value={opcionSeleccionada} onValueChange={setOpcionSeleccionada}>
+                      <SelectTrigger id="opcion">
+                        <SelectValue placeholder="Seleccioná una opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(selectedService.opciones).map(([key, value]) => (
+                          typeof value === 'number' && (
+                            <SelectItem key={key} value={key}>
+                              {key} - ${value}
+                            </SelectItem>
+                          )
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Opciones múltiples para porOpcionesMultiples */}
+                {selectedService?.modeloDePrecio === "porOpcionesMultiples" && selectedService.opciones && (
+                  <div className="space-y-4">
+                    {Object.entries(selectedService.opciones).map(([categoria, opciones]) => {
+                      if (typeof opciones === 'object' && !Array.isArray(opciones)) {
+                        return (
+                          <div key={categoria} className="space-y-2">
+                            <Label htmlFor={`opcion-${categoria}`}>{categoria} *</Label>
+                            <Select
+                              value={opcionesMultiples[categoria] || ""}
+                              onValueChange={(value) =>
+                                setOpcionesMultiples(prev => ({ ...prev, [categoria]: value }))
+                              }
+                            >
+                              <SelectTrigger id={`opcion-${categoria}`}>
+                                <SelectValue placeholder={`Seleccioná ${categoria.toLowerCase()}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(opciones).map(([opcion, precio]) => (
+                                  <SelectItem key={opcion} value={opcion}>
+                                    {opcion} {typeof precio === 'number' && precio > 0 ? `(+$${precio})` : ''}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                )}
 
                 {/* Observaciones */}
                 <div className="space-y-2">

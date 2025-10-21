@@ -36,15 +36,15 @@ export function Navbar() {
   return (
     <nav className="border-b bg-background sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="grid grid-cols-3 items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-2xl text-primary">
+          <Link to="/" className="flex items-center gap-2 font-bold text-2xl text-primary justify-self-start">
             <img src="/laverap-logo.svg" alt="Laverap Logo" className="w-10 h-10" />
             <span>Laverap</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center justify-center gap-6">
             {customerLinks.map((link) => (
               <Link
                 key={link.to}
@@ -75,7 +75,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Auth Section */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4 justify-self-end">
             {!isAuthenticated ? (
               <>
                 <Button variant="ghost" asChild>
@@ -138,7 +138,7 @@ export function Navbar() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="md:hidden">
+          <div className="md:hidden justify-self-end col-start-3">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
