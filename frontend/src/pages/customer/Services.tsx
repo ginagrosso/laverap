@@ -60,7 +60,7 @@ export default function Services() {
         <div className="container mx-auto px-4">
           {/* Loading State */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(4)].map((_, i) => (
                 <Card key={i}>
                   <CardHeader>
@@ -102,7 +102,7 @@ export default function Services() {
 
           {/* Services List */}
           {!isLoading && !error && services.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => {
                 const Icon = getServiceIcon(service.nombre);
 
