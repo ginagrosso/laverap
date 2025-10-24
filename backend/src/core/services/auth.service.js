@@ -5,27 +5,61 @@ const joi = require('joi');
 
 // Esquemas de validación con Joi
 const registerSchema = joi.object({
-  nombre: joi.string().min(2).max(50).required(),
-  email: joi.string().email().lowercase().required(),
-  password: joi.string().min(6).max(128).required()
+  nombre: joi.string().trim().min(2).max(50).required().messages({
+    'string.empty': 'El nombre es un campo obligatorio.',
+    'string.min': 'El nombre debe tener al menos 2 caracteres.',
+    'string.max': 'El nombre no puede superar los 50 caracteres.'
+  }),
+  email: joi.string().trim().email({tlds: { allow: false }})// Acepta cualquier dominio, no solo .com, .net, etc.
+  .lowercase()
+  .required()
+  .messages({
+    'string.empty': 'El correo electrónico es un campo obligatorio.',
+    'string.email': 'El correo electrónico debe tener un formato válido.'
+  }),
+  password: joi.string().min(6).max(128).required(). messages({
+    'string.empty': 'La contraseña es un campo obligatorio.',
+    'string.min': 'La contraseña debe tener al menos 6 caracteres.',
+    'string.max': 'La contraseña no puede superar los 128 caracteres.'
+  }),
+  rol: joi.string()
+    .valid('cliente', 'admin')
+    .default('cliente') // ← Valor por defecto
+    .messages({
+      'any.only': 'El rol debe ser "cliente" o "admin".'
+    }),
+  fechaCreacion: joi.date()
+    .default(() => new Date()) // ← Se ejecuta al validar
 });
 
+// Esquema para validar el login
+
 const loginSchema = joi.object({
-  email: joi.string().email().required(),
-  password: joi.string().required()
+  email: joi.string().email({tlds: { allow: false }}).required(). messages({
+    'string.empty': 'El correo electrónico es un campo obligatorio.',
+    'string.email': 'El correo electrónico debe tener un formato válido.'
+  }),
+  password: joi.string().required().messages({
+    'string.empty': 'La contraseña es obligatoria.'
+  })
 });
+
+// --- FUNCIÓN PARA REGISTRAR UN NUEVO USUARIO ---
 
 const registerNewUser = async (userData) => {
   // Validar datos de entrada con Joi
-  const { error, value } = registerSchema.validate(userData);
+  const { error, value } = registerSchema.validate(userData,{ abortEarly: false });// Devuelve TODOS los errores, no solo el primero
+  
   if (error) {
-    throw new Error(`Error de validación: ${error.details[0].message}`);
+    //Formateo de errores para mejor legibilidad
+    const errorMessages = error.details.map(detail => detail.message);
+    throw new Error(`Errores de validación: ${errorMessages.join(', ')}`);
   }
 
-  const { nombre, email, password } = value;
+  const { nombre, email, password, rol, fechaCreacion } = value; // Usamos 'value' que ya está validado y sanitizado
 
   // 1. Verificar si el usuario ya existe
-  const usersRef = db.collection('clientes'); // Usamos la colección 'clientes' como en tu diagrama
+  const usersRef = db.collection('clientes'); // Usamos la colección 'clientes' como en el diagrama
   const snapshot = await usersRef.where('email', '==', email).get();
 
   if (!snapshot.empty) {
@@ -41,8 +75,8 @@ const registerNewUser = async (userData) => {
     nombre,
     email,
     password: hashedPassword,
-    rol: 'cliente', // Asignamos un rol por defecto
-    fechaCreacion: new Date()
+    rol,
+    fechaCreacion,
   };
 
   // 4. Guardar el usuario en Firestore
@@ -60,9 +94,11 @@ const registerNewUser = async (userData) => {
 // --- FUNCIÓN PARA EL LOGIN ---
 const loginUser = async (loginData) => {
   // Validar datos de entrada con Joi
-  const { error, value } = loginSchema.validate(loginData);
+  const { error, value } = loginSchema.validate(loginData, { abortEarly: false });
+
   if (error) {
-    throw new Error(`Error de validación: ${error.details[0].message}`);
+    const errorMessages = error.details.map(detalle => detalle.message)
+    throw new Error(`Errores de validación: ${errorMessages.join(', ')}`);
   }
 
   const { email, password } = value;
