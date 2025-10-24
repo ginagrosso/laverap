@@ -1840,3 +1840,541 @@
 [debug] [2025-10-19T02:50:38.831Z] > authorizing via signed-in user (teorisso@gmail.com)
 [debug] [2025-10-19T02:50:38.835Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
 [debug] [2025-10-19T02:50:38.835Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:05.076Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.079Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.080Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.083Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.083Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.108Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.108Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.109Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.109Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.110Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.112Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.112Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.112Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.113Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.113Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.114Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.114Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.114Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.114Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.114Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.115Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.116Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.116Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.116Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.116Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.117Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.117Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.118Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.118Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.118Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.145Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.145Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.145Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.149Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.149Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.152Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.152Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.152Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.152Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.152Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.153Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.153Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.153Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.154Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.154Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.156Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.156Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.156Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.156Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.156Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.158Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.158Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.158Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.158Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.158Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.159Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.159Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.159Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.160Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.160Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.161Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.161Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.161Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.161Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.161Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.162Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.162Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.162Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.163Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.163Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.164Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.164Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.164Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.164Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.164Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.165Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.165Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.165Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.166Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.166Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.166Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.166Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.166Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.167Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.167Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.168Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.168Z] Checked if tokens are valid: false, expires at: 1761087300176
+[debug] [2025-10-21T22:49:05.168Z] > refreshing access token with scopes: []
+[debug] [2025-10-21T22:49:05.168Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-21T22:49:05.168Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.353Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.353Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.364Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.364Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.368Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.368Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.372Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.372Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.375Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.375Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.377Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.377Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.378Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.378Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.381Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.381Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.384Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.385Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.389Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.390Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.391Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.391Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.395Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.395Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.402Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.403Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.406Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.406Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.408Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.408Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.412Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.412Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.413Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.413Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.416Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.416Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.422Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.422Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.425Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.425Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.426Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.426Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.430Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.430Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.431Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.431Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.435Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.435Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.437Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.437Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.440Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.440Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.445Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.415Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.445Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.448Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.448Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.449Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.449Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.453Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.453Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.454Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.454Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.463Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.463Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.418Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.418Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.419Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.419Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.419Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.420Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.420Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.420Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.420Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.420Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.421Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.421Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.421Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.441Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.442Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.443Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.443Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.444Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.444Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.445Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.445Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.446Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.446Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.467Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.467Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.471Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.471Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.473Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-21T22:49:05.473Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-21T22:49:05.477Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.477Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.476Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.476Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.476Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.476Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.477Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.478Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.478Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.478Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.478Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.478Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] Checked if tokens are valid: true, expires at: 1761090544408
+[debug] [2025-10-21T22:49:05.479Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.479Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.481Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.481Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.482Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.482Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.484Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.485Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.486Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.486Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.487Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.487Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.488Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-21T22:49:05.488Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.488Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.488Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.489Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.489Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.489Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.489Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.490Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-21T22:49:05.490Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:05.491Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-21T22:49:05.491Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-21T22:49:06.427Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:06.427Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:06.436Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:06.436Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:06.447Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:06.447Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:06.484Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.484Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.485Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.485Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.487Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.487Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.524Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.524Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.528Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.528Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.530Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.530Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.534Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.534Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.535Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.535Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.539Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.539Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.573Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.574Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.575Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.575Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.577Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.578Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.578Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.577Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.579Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.580Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.579Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.579Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.579Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.580Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.580Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.580Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.582Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.582Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.582Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-21T22:49:06.582Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.583Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-21T22:49:06.583Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.584Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-21T22:49:06.584Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.584Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.584Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.585Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.585Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.587Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-21T22:49:06.587Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-21T22:49:06.810Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.810Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:06.814Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.814Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:06.853Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.853Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:06.855Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.855Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:06.857Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.857Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:06.859Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-21T22:49:06.860Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-21T22:49:06.899Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-21T22:49:06.899Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-21T22:49:07.205Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:07.205Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:07.208Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-21T22:49:07.208Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-21T22:49:07.209Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:07.209Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:07.211Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-21T22:49:07.211Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-21T22:49:07.212Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-21T22:49:07.212Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-21T22:49:07.214Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-21T22:49:07.214Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-22T21:26:35.318Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.322Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.322Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.323Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.323Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.324Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.324Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.324Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.325Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.325Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.325Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.325Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.326Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.327Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.351Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.351Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.353Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.353Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.354Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.354Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.355Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.355Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.356Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.356Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.386Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.386Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.387Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.387Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.387Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.387Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.387Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.388Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.389Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.390Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.390Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.390Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.390Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.392Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.392Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.393Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.393Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.395Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.395Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.396Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.396Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.397Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.397Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.398Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.398Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.399Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.399Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.400Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.400Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.401Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.401Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.402Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.402Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.402Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.402Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.502Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.504Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.505Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.505Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.506Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.506Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.507Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.507Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.508Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.508Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.508Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.508Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.510Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.510Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.533Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.534Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.535Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.535Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.537Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.537Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.538Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.538Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.539Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.539Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.563Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.563Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.563Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.563Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.567Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.567Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.568Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.569Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.569Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.569Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.569Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.569Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] Checked if tokens are valid: true, expires at: 1761171711094
+[debug] [2025-10-22T21:26:35.570Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.570Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.572Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.572Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.573Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.573Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.575Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.575Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.577Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.577Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.578Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.578Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.578Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [none]
+[debug] [2025-10-22T21:26:35.578Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.579Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.579Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.579Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.579Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.580Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.580Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.580Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [none]
+[debug] [2025-10-22T21:26:35.580Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:35.581Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [none]
+[debug] [2025-10-22T21:26:35.581Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com x-goog-quota-user=projects/laverap-3c51f
+[debug] [2025-10-22T21:26:36.502Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.502Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.504Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.504Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.550Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.550Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.557Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.557Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.576Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:36.576Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.591Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:36.591Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.592Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.592Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.597Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:36.597Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.602Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.602Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.607Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.607Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.654Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.654Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.662Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com 403
+[debug] [2025-10-22T21:26:36.662Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseio.com [omitted]
+[debug] [2025-10-22T21:26:36.681Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.681Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.682Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.682Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.689Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com 200
+[debug] [2025-10-22T21:26:36.689Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/cloudfunctions.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:36.899Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:36.899Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:37.455Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:37.455Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.468Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:37.468Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.472Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:37.472Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:37.472Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.472Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.473Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:37.473Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.480Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:37.480Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.485Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com 200
+[debug] [2025-10-22T21:26:37.485Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebaseapphosting.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.486Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:37.486Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.486Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:37.486Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.498Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:37.498Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.501Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-22T21:26:37.502Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-22T21:26:37.504Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com 200
+[debug] [2025-10-22T21:26:37.504Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasedataconnect.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.506Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:37.506Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.516Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:37.516Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.524Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:37.524Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:37.540Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com 200
+[debug] [2025-10-22T21:26:37.540Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/firebasecrashlytics.googleapis.com [omitted]
+[debug] [2025-10-22T21:26:38.040Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:38.042Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:38.042Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:38.040Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:38.043Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-22T21:26:38.043Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-22T21:26:38.048Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:38.048Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:38.050Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-22T21:26:38.050Z] > authorizing via signed-in user (teorisso@gmail.com)
+[debug] [2025-10-22T21:26:38.051Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:38.051Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:38.062Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ 200
+[debug] [2025-10-22T21:26:38.063Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/laverap-3c51f/services/ [omitted]
+[debug] [2025-10-22T21:26:38.064Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-22T21:26:38.064Z] > authorizing via signed-in user (teorisso@gmail.com)
