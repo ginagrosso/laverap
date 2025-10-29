@@ -79,11 +79,18 @@ const createNewOrder = async (orderData, clienteId) => {
 
 const getOrdersByClientId = async (clienteId) => {
     const ordersRef = db.collection('pedidos');
-    const snapshot = await ordersRef.where('clienteId', '==', clienteId).orderBy('fechaCreacion', 'desc').get();
+    // Removemos el orderBy para evitar necesitar un índice compuesto
+    const snapshot = await ordersRef.where('clienteId', '==', clienteId).get();
     if (snapshot.empty) return [];
     const orders = [];
     snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-    return orders;
+
+    // Ordenamos en memoria por fechaCreacion descendente
+    return orders.sort((a, b) => {
+        const dateA = a.fechaCreacion?.toDate ? a.fechaCreacion.toDate() : new Date(a.fechaCreacion);
+        const dateB = b.fechaCreacion?.toDate ? b.fechaCreacion.toDate() : new Date(b.fechaCreacion);
+        return dateB - dateA; // Orden descendente (más reciente primero)
+    });
 };
 
 module.exports = {
