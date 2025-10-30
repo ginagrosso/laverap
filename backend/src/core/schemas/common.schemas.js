@@ -38,4 +38,76 @@ const campoNombre = joi.string()
     'string.empty': 'El nombre es un campo obligatorio.',
     'string.min': 'El nombre debe tener al menos 2 caracteres.',
     'string.max': 'El nombre no puede superar los 50 caracteres.'
-  })
+  });
+
+// Teléfono común para todos los módulos
+const campoTelefono = joi.string()
+  .trim()
+  .pattern(/^[0-9]{10,15}$/)
+  .optional()
+  .messages({
+    'string.pattern.base': 'El teléfono debe tener entre 10 y 15 dígitos numéricos.',
+  });
+
+// Dirección común para todos los módulos
+const campoDireccion = joi.string()
+  .trim()
+  .min(5)
+  .max(200)
+  .optional()
+  .messages({
+    'string.min': 'La dirección debe tener al menos 5 caracteres.',
+    'string.max': 'La dirección no puede superar los 200 caracteres.'
+  });
+
+// ID de Firebase común (22 caracteres alfanuméricos)
+const campoFirebaseId = joi.string()
+  .trim()
+  .length(20)
+  .required()
+  .messages({
+    'string.empty': 'El ID es un campo obligatorio.',
+    'string.length': 'El ID debe tener exactamente 20 caracteres.'
+  });
+
+// Observaciones/Comentarios opcionales
+const campoObservaciones = joi.string()
+  .trim()
+  .max(500)
+  .optional()
+  .allow('', null)
+  .messages({
+    'string.max': 'Las observaciones no pueden superar los 500 caracteres.'
+  });
+
+// Estado de pedido (enum)
+const campoEstadoPedido = joi.string()
+  .valid('Recibido', 'En Proceso', 'Listo', 'Entregado', 'Cancelado')
+  .required()
+  .messages({
+    'any.only': 'El estado debe ser: Recibido, En Proceso, Listo, Entregado o Cancelado.',
+    'string.empty': 'El estado es un campo obligatorio.'
+  });
+
+// Precio (número positivo con hasta 2 decimales)
+const campoPrecio = joi.number()
+  .positive()
+  .precision(2)
+  .required()
+  .messages({
+    'number.base': 'El precio debe ser un número.',
+    'number.positive': 'El precio debe ser mayor a 0.',
+    'any.required': 'El precio es un campo obligatorio.'
+  });
+
+module.exports = {
+  campoEmail,
+  campoPassword,
+  campoNombre,
+  campoTelefono,
+  campoDireccion,
+  campoFirebaseId,
+  campoObservaciones,
+  campoEstadoPedido,
+  campoPrecio
+};
