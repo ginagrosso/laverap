@@ -1,84 +1,10 @@
 const db = require('../../config/firebase.config');
-const { crearPedidoSchema } = require('../schemas/order.schemas');
 const { calcularPrecio } = require('./helpers/price-calculator');
+const { validarTransicionEstado, validarPedidoPagable } = require('./helpers/order.validator');
 
 /**
  * Servicio para gestionar pedidos
  */
-
-// ==========================================
-// CONSTANTES Y VALIDADORES INTERNOS
-// ==========================================
-
-/**
- * Matriz de transiciones válidas entre estados de pedidos
- * Define las reglas de negocio para cambios de estado
- */
-const TRANSICIONES_VALIDAS = {
-  'Recibido': ['En Proceso', 'Cancelado'],      // Un pedido recibido puede pasar a proceso o cancelarse
-  'En Proceso': ['Listo', 'Cancelado'],         // En proceso puede completarse o cancelarse
-  'Listo': ['Entregado', 'Cancelado'],          // Listo puede entregarse o cancelarse
-  'Entregado': [],                               // Estado final: no puede cambiar
-  'Cancelado': []                                // Estado final: no puede cambiar
-};
-
-/**
- * Valida si una transición de estado es válida según las reglas de negocio
- * @param {string} estadoActual - Estado actual del pedido
- * @param {string} nuevoEstado - Estado al que se quiere cambiar
- * @returns {boolean} - True si la transición es válida
- * @throws {Error} - Si la transición no es válida
- */
-const validarTransicionEstado = (estadoActual, nuevoEstado) => {
-  // Verificar que el estado actual existe en la matriz
-  if (!TRANSICIONES_VALIDAS[estadoActual]) {
-    throw new Error(`Estado actual inválido: "${estadoActual}".`);
-  }
-
-  // Obtener las transiciones permitidas desde el estado actual
-  const transicionesPermitidas = TRANSICIONES_VALIDAS[estadoActual];
-  
-  // Verificar si el nuevo estado está en la lista de transiciones permitidas
-  if (!transicionesPermitidas.includes(nuevoEstado)) {
-    const opcionesTexto = transicionesPermitidas.length > 0 
-      ? transicionesPermitidas.join(', ') 
-      : 'ninguna (estado final)';
-      
-    throw new Error(
-      `No se puede cambiar de "${estadoActual}" a "${nuevoEstado}". ` +
-      `Transiciones válidas: ${opcionesTexto}.`
-    );
-  }
-
-  return true;
-};
-
-/**
- * Valida que un pedido pueda recibir un pago
- * Solo se pueden pagar pedidos en estado "Listo" o "Entregado"
- * @param {Object} pedido - Objeto del pedido con sus datos
- * @returns {boolean} - True si se puede registrar el pago
- * @throws {Error} - Si el pedido no está en un estado que permita pagos
- */
-const validarPedidoPagable = (pedido) => {
-  // Lista de estados en los que se permite registrar un pago
-  const estadosPermitidos = ['Listo', 'Entregado'];
-  
-  // Verificar que el pedido esté en un estado válido para pago
-  if (!estadosPermitidos.includes(pedido.estado)) {
-    throw new Error(
-      `No se puede registrar el pago. El pedido debe estar en estado "Listo" o "Entregado". ` +
-      `Estado actual: "${pedido.estado}".`
-    );
-  }
-
-  // Verificar que el pedido no esté ya pagado
-  if (pedido.estadoPago === 'Pagado') {
-    throw new Error('Este pedido ya fue pagado anteriormente.');
-  }
-
-  return true;
-};
 
 // ==========================================
 // FUNCIONES PÚBLICAS DEL SERVICIO
@@ -86,20 +12,10 @@ const validarPedidoPagable = (pedido) => {
 
 /**
  * Crea un nuevo pedido en Firestore
- * @param {Object} orderData - Datos del pedido (servicioId, detalle, observaciones)
- * @param {string} clienteId - ID del cliente que realiza el pedido
- * @returns {Promise<Object>} - Pedido creado con su ID
+ * Los datos ya vienen validados desde el middleware
  */
 const createNewOrder = async (orderData, clienteId) => {
-  // Validar datos de entrada con Joi
-  const { error, value } = crearPedidoSchema.validate(orderData, { abortEarly: false });
-  
-  if (error) {
-    const mensajes = error.details.map(err => err.message).join(', ');
-    throw new Error(`Errores de validación: ${mensajes}`);
-  }
-
-  const { servicioId, detalle, observaciones = null } = value;
+  const { servicioId, detalle, observaciones = null } = orderData;
 
   // Verificar que el servicio existe
   const serviceRef = db.collection('servicios').doc(servicioId);
@@ -116,7 +32,7 @@ const createNewOrder = async (orderData, clienteId) => {
     throw new Error('El servicio seleccionado no está disponible actualmente.');
   }
 
-  // Calcular precio estimado usando el helper
+  // Calcular precio usando el helper
   const precioEstimado = calcularPrecio(serviceData, detalle);
 
   // Crear el pedido en Firestore
@@ -130,6 +46,7 @@ const createNewOrder = async (orderData, clienteId) => {
     observaciones,
     precioEstimado,
     estado: 'Recibido',
+    estadoPago: 'Pendiente',
     fechaCreacion: new Date(),
     fechaActualizacion: new Date()
   };
@@ -144,8 +61,6 @@ const createNewOrder = async (orderData, clienteId) => {
 
 /**
  * Obtiene todos los pedidos de un cliente específico
- * @param {string} clienteId - ID del cliente
- * @returns {Promise<Array>} - Lista de pedidos ordenados por fecha descendente
  */
 const getOrdersByClientId = async (clienteId) => {
   if (!clienteId) {
@@ -163,23 +78,163 @@ const getOrdersByClientId = async (clienteId) => {
     return [];
   }
 
-  const orders = [];
-  snapshot.forEach(doc => {
-    orders.push({ 
-      id: doc.id, 
-      ...doc.data() 
+  const pedidos = [];
+  snapshot.forEach(documento => {
+    pedidos.push({ 
+      id: documento.id, 
+      ...documento.data() 
     });
   });
 
-  // Ordenar en memoria por fechaCreacion descendente (más reciente primero)
-  return orders.sort((a, b) => {
-    const dateA = a.fechaCreacion?.toDate ? a.fechaCreacion.toDate() : new Date(a.fechaCreacion);
-    const dateB = b.fechaCreacion?.toDate ? b.fechaCreacion.toDate() : new Date(b.fechaCreacion);
-    return dateB - dateA;
+  // Ordenar en memoria por fechaCreacion descendente
+  return pedidos.sort((pedidoA, pedidoB) => {
+    const fechaA = pedidoA.fechaCreacion?.toDate ? pedidoA.fechaCreacion.toDate() : new Date(pedidoA.fechaCreacion);
+    const fechaB = pedidoB.fechaCreacion?.toDate ? pedidoB.fechaCreacion.toDate() : new Date(pedidoB.fechaCreacion);
+    return fechaB - fechaA;
   });
+};
+
+/**
+ * Obtiene TODOS los pedidos (solo para admin)
+ * No filtra por cliente
+ */
+const getAllOrders = async () => {
+  const ordersRef = db.collection('pedidos');
+  const snapshot = await ordersRef.get();
+  
+  if (snapshot.empty) {
+    return [];
+  }
+
+  const todosPedidos = [];
+  snapshot.forEach(documento => {
+    todosPedidos.push({ 
+      id: documento.id, 
+      ...documento.data() 
+    });
+  });
+
+  // Ordenar por fecha de creación descendente
+  return todosPedidos.sort((pedidoA, pedidoB) => {
+    const fechaA = pedidoA.fechaCreacion?.toDate ? pedidoA.fechaCreacion.toDate() : new Date(pedidoA.fechaCreacion);
+    const fechaB = pedidoB.fechaCreacion?.toDate ? pedidoB.fechaCreacion.toDate() : new Date(pedidoB.fechaCreacion);
+    return fechaB - fechaA;
+  });
+};
+
+/**
+ * Obtiene un pedido específico por su ID
+ */
+const getOrderById = async (pedidoId) => {
+  if (!pedidoId) {
+    throw new Error('El ID del pedido es obligatorio.');
+  }
+
+  const pedidoRef = db.collection('pedidos').doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+
+  if (!pedidoDoc.exists) {
+    throw new Error('Pedido no encontrado.');
+  }
+
+  return { 
+    id: pedidoDoc.id, 
+    ...pedidoDoc.data() 
+  };
+};
+
+/**
+ * Actualiza el estado de un pedido
+ * Valida que la transición de estado sea válida
+ */
+const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) => {
+  if (!pedidoId) {
+    throw new Error('El ID del pedido es obligatorio.');
+  }
+
+  // Obtener el pedido actual
+  const pedidoRef = db.collection('pedidos').doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+  
+  if (!pedidoDoc.exists) {
+    throw new Error('Pedido no encontrado.');
+  }
+
+  const pedidoActual = pedidoDoc.data();
+  const estadoActual = pedidoActual.estado;
+
+  // Validar que la transición de estado sea válida
+  validarTransicionEstado(estadoActual, nuevoEstado);
+
+  // Actualizar el estado en Firestore
+  const datosActualizacion = {
+    estado: nuevoEstado,
+    fechaActualizacion: new Date()
+  };
+
+  // Si hay observaciones, agregarlas
+  if (observaciones) {
+    datosActualizacion.observaciones = observaciones;
+  }
+
+  await pedidoRef.update(datosActualizacion);
+
+  return { 
+    id: pedidoId, 
+    ...pedidoActual, 
+    ...datosActualizacion 
+  };
+};
+
+/**
+ * Registra un pago para un pedido
+ * Valida que el pedido pueda recibir un pago
+ */
+const registerPayment = async (pedidoId, datosPago) => {
+  if (!pedidoId) {
+    throw new Error('El ID del pedido es obligatorio.');
+  }
+
+  // Obtener el pedido
+  const pedidoRef = db.collection('pedidos').doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+  
+  if (!pedidoDoc.exists) {
+    throw new Error('Pedido no encontrado.');
+  }
+
+  const pedidoActual = { id: pedidoId, ...pedidoDoc.data() };
+
+  // Validar que el pedido se pueda pagar
+  validarPedidoPagable(pedidoActual);
+
+  // Registrar el pago en Firestore
+  const datosActualizacion = {
+    estadoPago: 'Pagado',
+    metodoPago: datosPago.metodo,
+    montoPagado: datosPago.monto,
+    fechaPago: new Date(),
+    fechaActualizacion: new Date()
+  };
+
+  // Si hay observaciones sobre el pago, agregarlas
+  if (datosPago.observaciones) {
+    datosActualizacion.observacionesPago = datosPago.observaciones;
+  }
+
+  await pedidoRef.update(datosActualizacion);
+
+  return { 
+    ...pedidoActual, 
+    ...datosActualizacion 
+  };
 };
 
 module.exports = {
   createNewOrder,
   getOrdersByClientId,
+  getAllOrders,        
+  getOrderById,        
+  updateOrderStatus,   
+  registerPayment      
 };

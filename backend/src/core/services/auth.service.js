@@ -10,7 +10,7 @@ const registerSchema = joi.object({
     'string.min': 'El nombre debe tener al menos 2 caracteres.',
     'string.max': 'El nombre no puede superar los 50 caracteres.'
   }),
-  email: joi.string().trim().email({tlds: { allow: false }})// Acepta cualquier dominio, no solo .com, .net, etc.
+  email: joi.string().trim().email({tlds: { allow: false }}) // Acepta cualquier dominio, no solo .com, .net, etc.
   .lowercase()
   .required()
   .messages({
@@ -35,7 +35,7 @@ const registerSchema = joi.object({
 // Esquema para validar el login
 
 const loginSchema = joi.object({
-  email: joi.string().email({tlds: { allow: false }}).required(). messages({
+  email: joi.string().trim().email({tlds: { allow: false }}).lowercase().required().messages({
     'string.empty': 'El correo electrónico es un campo obligatorio.',
     'string.email': 'El correo electrónico debe tener un formato válido.'
   }),
@@ -58,9 +58,12 @@ const registerNewUser = async (userData) => {
 
   const { nombre, email, password, rol, fechaCreacion } = value; // Usamos 'value' que ya está validado y sanitizado
 
+  // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
+  const emailNormalizado = email.toLowerCase().trim();
+
   // 1. Verificar si el usuario ya existe
   const usersRef = db.collection('clientes'); // Usamos la colección 'clientes' como en el diagrama
-  const snapshot = await usersRef.where('email', '==', email).get();
+  const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
 
   if (!snapshot.empty) {
     throw new Error('El correo electrónico ya está registrado.');
@@ -73,7 +76,7 @@ const registerNewUser = async (userData) => {
   // 3. Crear el nuevo objeto de usuario
   const newUser = {
     nombre,
-    email,
+    email: emailNormalizado, // Guardar siempre en minúsculas
     password: hashedPassword,
     rol,
     fechaCreacion,
@@ -103,9 +106,12 @@ const loginUser = async (loginData) => {
 
   const { email, password } = value;
 
+  // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
+  const emailNormalizado = email.toLowerCase().trim();
+
   // 1. Buscar al usuario por su correo electrónico
   const usersRef = db.collection('clientes');
-  const snapshot = await usersRef.where('email', '==', email).get();
+  const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
 
   if (snapshot.empty) {
     throw new Error('Credenciales inválidas.'); // Error genérico por seguridad

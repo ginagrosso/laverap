@@ -13,106 +13,94 @@
 const calcularPrecio = (serviceData, detalle) => {
   const { modeloDePrecio } = serviceData;
 
-  // Delegar el cálculo según el modelo de precios
+  // Delegar el cálculo según el modelo de precios de Firebase
   switch (modeloDePrecio) {
     case 'paqueteConAdicional':
-      return calcularPrecioPaqueteConAdicional(serviceData.configuracionPrecios, detalle);
+      return calcularPrecioPaqueteConAdicional(serviceData, detalle);
     
     case 'porOpcionesMultiples':
-      return calcularPrecioPorOpcionesMultiples(serviceData.configuracionPrecios, detalle);
+      return calcularPrecioPorOpcionesMultiples(serviceData, detalle);
     
     case 'porOpciones':
-      return calcularPrecioPorOpciones(serviceData.configuracionPrecios, detalle);
+      return calcularPrecioPorOpciones(serviceData, detalle);
     
     default:
-      throw new Error('El modelo de precios de este servicio no es válido o está mal configurado.');
+      throw new Error(`Modelo de precio no soportado: ${modeloDePrecio}`);
   }
 };
 
 /**
  * Calcula el precio para modelo "paqueteConAdicional"
- * Precio base del paquete + suma de adicionales seleccionados
+ * Ejemplo: "Paquete 12 Prendas" - precioBase + adicionales opcionales (planchado)
  */
-const calcularPrecioPaqueteConAdicional = (configuracionPrecios, detalle) => {
-  const { paqueteBase, adicionales = [] } = detalle;
-  
-  // Validar que se seleccionó un paquete base
-  if (!paqueteBase) {
-    throw new Error('Debe seleccionar un paquete base.');
-  }
+const calcularPrecioPaqueteConAdicional = (serviceData, detalle) => {
+  // Iniciar con el precio base del servicio
+  let precioTotal = serviceData.precioBase;
 
-  // Validar que el servicio tenga paquete base configurado
-  const paquete = configuracionPrecios.paqueteBase;
-  if (!paquete) {
-    throw new Error('El servicio no tiene un paquete base configurado.');
-  }
-  
-  // Iniciar con el precio del paquete base
-  let precio = paquete.precio;
-
-  // Sumar el precio de cada adicional seleccionado
-  if (adicionales.length > 0) {
-    const adicionalesDisponibles = configuracionPrecios.adicionales || [];
-    adicionales.forEach(adicionalNombre => {
-      const adicional = adicionalesDisponibles.find(a => a.nombre === adicionalNombre);
-      if (adicional) {
-        precio += adicional.precio;
+  // Sumar adicionales si fueron seleccionados
+  if (detalle.adicionales && Array.isArray(detalle.adicionales)) {
+    detalle.adicionales.forEach(adicionalNombre => {
+      // Los adicionales en Firebase están en minúsculas (ej: "planchado")
+      const adicionalKey = adicionalNombre.toLowerCase();
+      const precioAdicional = serviceData.adicionales?.[adicionalKey];
+      
+      if (precioAdicional !== undefined) {
+        precioTotal += precioAdicional;
       }
     });
   }
 
-  return precio;
+  return precioTotal;
 };
 
 /**
  * Calcula el precio para modelo "porOpcionesMultiples"
- * (Precio base + suma de opciones seleccionadas) * cantidad
+ * Ejemplo: "Lavado de Acolchados" - suma de opciones de diferentes categorías (Tamaño + Tipo)
  */
-const calcularPrecioPorOpcionesMultiples = (configuracionPrecios, detalle) => {
-  const { opciones = [], cantidad = 1 } = detalle;
-  
-  // Validar que se seleccionó al menos una opción
-  if (!opciones || opciones.length === 0) {
-    throw new Error('Debe seleccionar al menos una opción.');
-  }
+const calcularPrecioPorOpcionesMultiples = (serviceData, detalle) => {
+  let precioTotal = 0;
 
-  const opcionesDisponibles = configuracionPrecios.opciones || [];
-  const precioBase = configuracionPrecios.precioBase || 0;
+  // Recorrer cada categoría de opciones disponibles (ej: "Tamaño", "Tipo")
+  const categoriasOpciones = serviceData.opciones || {};
   
-  // Sumar el precio de cada opción seleccionada
-  let precioOpciones = 0;
-  opciones.forEach(opcionNombre => {
-    const opcion = opcionesDisponibles.find(o => o.nombre === opcionNombre);
-    if (opcion) {
-      precioOpciones += opcion.precio;
+  Object.keys(categoriasOpciones).forEach(categoria => {
+    // Obtener la opción seleccionada por el cliente para esta categoría
+    const opcionSeleccionada = detalle[categoria];
+    
+    if (opcionSeleccionada) {
+      // Buscar el precio de la opción seleccionada en Firebase
+      const precioOpcion = categoriasOpciones[categoria][opcionSeleccionada];
+      
+      if (precioOpcion !== undefined) {
+        precioTotal += precioOpcion;
+      }
     }
   });
 
-  // Calcular precio total: (base + opciones) * cantidad
-  return (precioBase + precioOpciones) * cantidad;
+  return precioTotal;
 };
 
 /**
  * Calcula el precio para modelo "porOpciones"
- * Precio de la opción seleccionada
+ * Ejemplo: "Lavado Prendas Especiales" - precio de una sola opción seleccionada (CAMPERAS, SACOS, etc.)
  */
-const calcularPrecioPorOpciones = (configuracionPrecios, detalle) => {
-  const { opcion } = detalle;
+const calcularPrecioPorOpciones = (serviceData, detalle) => {
+  const opcionSeleccionada = detalle.opcion;
   
   // Validar que se seleccionó una opción
-  if (!opcion) {
+  if (!opcionSeleccionada) {
     throw new Error('Debe seleccionar una opción.');
   }
 
-  const opcionesSimples = configuracionPrecios.opcionesSimples || [];
-  const opcionSeleccionada = opcionesSimples.find(o => o.nombre === opcion);
+  // Buscar el precio de la opción en Firebase
+  const precio = serviceData.opciones?.[opcionSeleccionada];
   
-  // Validar que la opción existe
-  if (!opcionSeleccionada) {
-    throw new Error('La opción seleccionada no es válida.');
+  // Validar que la opción existe en el servicio
+  if (precio === undefined) {
+    throw new Error(`La opción "${opcionSeleccionada}" no es válida.`);
   }
 
-  return opcionSeleccionada.precio;
+  return precio;
 };
 
 module.exports = {

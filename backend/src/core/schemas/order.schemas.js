@@ -18,12 +18,13 @@ const crearPedidoSchema = joi.object({
     adicionales: joi.array().items(joi.string()).optional(),
     
     // Para modelo "porOpcionesMultiples"
-    opciones: joi.array().items(joi.string()).optional(),
+    // Permite propiedades dinámicas (categorías como "Tipo", "Tamaño", etc.)
     cantidad: joi.number().integer().min(1).optional(),
     
     // Para modelo "porOpciones"
     opcion: joi.string().optional(),
   })
+    .unknown(true) // Permite propiedades adicionales para categorías dinámicas
     .required()
     .messages({
       'object.base': 'El detalle del pedido debe ser un objeto.',
