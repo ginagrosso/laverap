@@ -1,11 +1,7 @@
 const joi = require('joi');
 const { campoNombre, campoPrecio, campoFirebaseId } = require('./common.schemas');
 
-/**
- * Esquemas de validación para el módulo de servicios
- */
-
-// Schema para crear/actualizar un servicio
+// Schema principal que valida según el modelo de precio
 const servicioSchema = joi.object({
   nombre: campoNombre.messages({
     'string.empty': 'El nombre del servicio es obligatorio.',
@@ -32,59 +28,74 @@ const servicioSchema = joi.object({
       'string.empty': 'El modelo de precio es obligatorio.'
     }),
   
-  configuracionPrecios: joi.object({
-    // Para modelo "paqueteConAdicional"
-    paqueteBase: joi.object({
-      nombre: joi.string().required(),
-      precio: campoPrecio
-    }).optional(),
-    
-    adicionales: joi.array().items(
-      joi.object({
-        nombre: joi.string().required(),
-        precio: campoPrecio
-      })
-    ).optional(),
-    
-    // Para modelo "porOpcionesMultiples"
-    opciones: joi.array().items(
-      joi.object({
-        nombre: joi.string().required(),
-        precio: campoPrecio
-      })
-    ).optional(),
-    
-    precioBase: campoPrecio.optional(),
-    
-    // Para modelo "porOpciones"
-    opcionesSimples: joi.array().items(
-      joi.object({
-        nombre: joi.string().required(),
-        precio: campoPrecio
-      })
-    ).optional()
-  })
-    .required()
-    .messages({
-      'object.base': 'La configuración de precios debe ser un objeto.',
-      'any.required': 'La configuración de precios es obligatoria.'
-    }),
-  
   activo: joi.boolean()
     .default(true)
     .messages({
       'boolean.base': 'El campo activo debe ser verdadero o falso.'
     }),
   
-  imagen: joi.string()
-    .uri()
-    .optional()
-    .messages({
-      'string.uri': 'La URL de la imagen no es válida.'
+  // Campos condicionales según el modelo de precio
+  precioBase: joi.when('modeloDePrecio', {
+    is: joi.string().valid('paqueteConAdicional', 'porOpcionesMultiples'),
+    then: campoPrecio.required().messages({
+      'any.required': 'El precio base es obligatorio para este modelo.'
+    }),
+    otherwise: joi.forbidden()
+  }),
+  
+  adicionales: joi.when('modeloDePrecio', {
+    is: 'paqueteConAdicional',
+    then: joi.object()
+      .pattern(joi.string(), campoPrecio)
+      .required()
+      .messages({
+        'object.base': 'Los adicionales deben ser un objeto.',
+        'any.required': 'Los adicionales son obligatorios para este modelo.'
+      }),
+    otherwise: joi.forbidden()
+  }),
+  
+  opciones: joi.when('modeloDePrecio', {
+    is: 'porOpciones',
+    then: joi.object()
+      .pattern(joi.string(), campoPrecio)
+      .required()
+      .messages({
+        'object.base': 'Las opciones deben ser un objeto.',
+        'any.required': 'Las opciones son obligatorias para este modelo.'
+      }),
+    otherwise: joi.when('modeloDePrecio', {
+      is: 'porOpcionesMultiples',
+      then: joi.object()
+        .pattern(
+          joi.string(),
+          joi.object().pattern(joi.string(), campoPrecio)
+        )
+        .required()
+        .messages({
+          'object.base': 'Las opciones deben ser un objeto.',
+          'any.required': 'Las opciones son obligatorias para este modelo.'
+        }),
+      otherwise: joi.forbidden()
     })
+  }),
+  
+  minimoUnidades: joi.when('modeloDePrecio', {
+    is: 'porOpcionesMultiples',
+    then: joi.number()
+      .integer()
+      .min(1)
+      .required()
+      .messages({
+        'number.base': 'El mínimo de unidades debe ser un número.',
+        'number.min': 'El mínimo de unidades debe ser al menos 1.',
+        'any.required': 'El mínimo de unidades es obligatorio para este modelo.'
+      }),
+    otherwise: joi.forbidden()
+  })
 });
 
-// Schema para obtener servicio por ID (parámetro de ruta)
+// Schema para obtener servicio por ID
 const obtenerServicioPorIdSchema = joi.object({
   id: campoFirebaseId.messages({
     'string.empty': 'El ID del servicio es obligatorio.',

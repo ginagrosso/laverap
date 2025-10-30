@@ -16,54 +16,66 @@ const getAllServices = async () => {
     return services;
 };
 
-// --- FUNCIÓN DE VALIDACIÓN ---
-const validateServiceData = (data) => {
-    const { nombre, modeloDePrecio } = data;
+// Crea un nuevo servicio
+const createService = async (datosServicio) => {
+  // Agrega el servicio a Firestore
+  const nuevoServicioRef = await db.collection('servicios').add({
+    ...datosServicio,
+    activo: datosServicio.activo !== undefined ? datosServicio.activo : true,
+    fechaCreacion: new Date().toISOString()
+  });
 
-    if (!nombre || typeof nombre !== 'string') {
-        throw new Error('El campo "nombre" es obligatorio y debe ser un texto.');
-    }
-    if (!modeloDePrecio || typeof modeloDePrecio !== 'string') {
-        throw new Error('El campo "modeloDePrecio" es obligatorio y debe ser un texto.');
-    }
-
-    switch (modeloDePrecio) {
-        case 'porCanasto':
-            if (typeof data.precioPorCanasto !== 'number') {
-                throw new Error("Para el modelo 'porCanasto', el campo 'precioPorCanasto' es obligatorio y debe ser un número.");
-            }
-            if (typeof data.itemsPorCanasto !== 'number') {
-                throw new Error("Para el modelo 'porCanasto', el campo 'itemsPorCanasto' es obligatorio y debe ser un número.");
-            }
-            if (typeof data.minimoItems !== 'number') {
-                throw new Error("Para el modelo 'porCanasto', el campo 'minimoItems' es obligatorio y debe ser un número.");
-            }
-            break;
-        
-        case 'porUnidad':
-            if (typeof data.precioBase !== 'number') {
-                throw new Error("Para el modelo 'porUnidad', el campo 'precioBase' es obligatorio y debe ser un número.");
-            }
-            if (typeof data.minimoUnidades !== 'number') {
-                throw new Error("Para el modelo 'porUnidad', el campo 'minimoUnidades' es obligatorio y debe ser un número.");
-            }
-            // El campo 'opcionesDePrecio' es opcional, por lo que no se valida aquí.
-            break;
-
-        default:
-            throw new Error(`El modelo de precio "${modeloDePrecio}" no es válido.`);
-    }
-    // Si todo está bien, no hacemos nada
+  // Obtiene el servicio recién creado
+  const servicioCreado = await nuevoServicioRef.get();
+  
+  return {
+    id: servicioCreado.id,
+    ...servicioCreado.data()
+  };
 };
 
-
-const createService = async (serviceData) => {
-    // 1. Ejecutamos la validación primero
-    validateServiceData(serviceData);
-    
-    // 2. Si la validación pasa, guardamos en la base de datos
-    const serviceRef = await db.collection('servicios').add(serviceData);
-    return { id: serviceRef.id, ...serviceData };
+// Busca un servicio por ID
+const getServiceById = async (servicioId) => {
+  const doc = await db.collection('servicios').doc(servicioId).get();
+  
+  if (!doc.exists) {
+    throw new Error('El servicio solicitado no existe.');
+  }
+  
+  return { id: doc.id, ...doc.data() };
 };
 
-module.exports = { getAllServices , createService};
+// Actualiza un servicio existente
+const updateService = async (servicioId, datosActualizados) => {
+  // Verifica que el servicio exista
+  await getServiceById(servicioId);
+  
+  // Actualiza el servicio
+  await db.collection('servicios').doc(servicioId).update(datosActualizados);
+  
+  // Devuelve el servicio actualizado
+  const servicioActualizado = await getServiceById(servicioId);
+  return servicioActualizado;
+};
+
+// Desactiva un servicio (soft delete)
+const deactivateService = async (servicioId) => {
+  // Verifica que el servicio exista
+  await getServiceById(servicioId);
+  
+  // Marca como inactivo y guarda fecha
+  await db.collection('servicios').doc(servicioId).update({
+    activo: false,
+    fechaDesactivacion: new Date().toISOString()
+  });
+  
+  return { message: 'Servicio desactivado exitosamente.' };
+};
+
+module.exports = {
+  getAllServices,
+  createService,
+  getServiceById,     
+  updateService,       
+  deactivateService    
+};
