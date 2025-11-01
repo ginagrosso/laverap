@@ -1,6 +1,8 @@
 const db = require('../../config/firebase.config');
 const { calcularPrecio } = require('./helpers/price-calculator');
 const { validarTransicionEstado, validarPedidoPagable } = require('./helpers/order.validator');
+const AppError = require('../errors/AppError');
+const ERROR_CODES = require('../errors/error.codes');
 
 /**
  * Servicio para gestionar pedidos
@@ -22,18 +24,34 @@ const createNewOrder = async (orderData, clienteId) => {
   const serviceDoc = await serviceRef.get();
   
   if (!serviceDoc.exists) {
-    throw new Error('El servicio solicitado no existe.');
+    throw new AppError(
+      ERROR_CODES.SERVICE_NOT_FOUND,
+      'El servicio seleccionado no existe',
+      404
+    );
   }
 
   const serviceData = serviceDoc.data();
   
   // Verificar que el servicio esté activo
   if (serviceData.activo === false) {
-    throw new Error('El servicio seleccionado no está disponible actualmente.');
+    throw new AppError(
+      ERROR_CODES.SERVICE_INACTIVE,
+      'El servicio no está disponible',
+      400
+    );
   }
 
   // Calcular precio usando el helper
   const precioEstimado = calcularPrecio(serviceData, detalle);
+
+  if (!precioEstimado) {
+    throw new AppError(
+      ERROR_CODES.ORDER_INVALID_PRICE_MODEL,
+      'Error al calcular el precio',
+      500
+    );
+  }
 
   // Crear el pedido en Firestore
   const newOrder = {
@@ -64,7 +82,11 @@ const createNewOrder = async (orderData, clienteId) => {
  */
 const getOrdersByClientId = async (clienteId) => {
   if (!clienteId) {
-    throw new Error('El ID del cliente es obligatorio.');
+    throw new AppError(
+      ERROR_CODES.VALIDATION_MISSING_FIELD,
+      'El ID del cliente es obligatorio',
+      400
+    );
   }
 
   const ordersRef = db.collection('pedidos');
@@ -127,14 +149,22 @@ const getAllOrders = async () => {
  */
 const getOrderById = async (pedidoId) => {
   if (!pedidoId) {
-    throw new Error('El ID del pedido es obligatorio.');
+    throw new AppError(
+      ERROR_CODES.VALIDATION_MISSING_FIELD,
+      'El ID del pedido es obligatorio',
+      400
+    );
   }
 
   const pedidoRef = db.collection('pedidos').doc(pedidoId);
   const pedidoDoc = await pedidoRef.get();
 
   if (!pedidoDoc.exists) {
-    throw new Error('Pedido no encontrado.');
+    throw new AppError(
+      ERROR_CODES.ORDER_NOT_FOUND,
+      'Pedido no encontrado',
+      404
+    );
   }
 
   return { 
@@ -149,7 +179,11 @@ const getOrderById = async (pedidoId) => {
  */
 const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) => {
   if (!pedidoId) {
-    throw new Error('El ID del pedido es obligatorio.');
+    throw new AppError(
+      ERROR_CODES.VALIDATION_MISSING_FIELD,
+      'El ID del pedido es obligatorio',
+      400
+    );
   }
 
   // Obtener el pedido actual
@@ -157,7 +191,11 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) =>
   const pedidoDoc = await pedidoRef.get();
   
   if (!pedidoDoc.exists) {
-    throw new Error('Pedido no encontrado.');
+    throw new AppError(
+      ERROR_CODES.ORDER_NOT_FOUND,
+      'Pedido no encontrado',
+      404
+    );
   }
 
   const pedidoActual = pedidoDoc.data();
@@ -192,7 +230,11 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) =>
  */
 const registerPayment = async (pedidoId, datosPago) => {
   if (!pedidoId) {
-    throw new Error('El ID del pedido es obligatorio.');
+    throw new AppError(
+      ERROR_CODES.VALIDATION_MISSING_FIELD,
+      'El ID del pedido es obligatorio',
+      400
+    );
   }
 
   // Obtener el pedido
@@ -200,7 +242,11 @@ const registerPayment = async (pedidoId, datosPago) => {
   const pedidoDoc = await pedidoRef.get();
   
   if (!pedidoDoc.exists) {
-    throw new Error('Pedido no encontrado.');
+    throw new AppError(
+      ERROR_CODES.ORDER_NOT_FOUND,
+      'Pedido no encontrado',
+      404
+    );
   }
 
   const pedidoActual = { id: pedidoId, ...pedidoDoc.data() };

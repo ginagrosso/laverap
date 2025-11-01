@@ -100,6 +100,17 @@ const campoPrecio = joi.number()
     'any.required': 'El precio es un campo obligatorio.'
   });
 
+// Precio para opciones de servicios (permite 0 para "sin cargo adicional")
+const campoPrecioOpcion = joi.number()
+  .min(0)
+  .precision(2)
+  .required()
+  .messages({
+    'number.base': 'El precio debe ser un número.',
+    'number.min': 'El precio no puede ser negativo.',
+    'any.required': 'El precio es un campo obligatorio.'
+  });
+
 module.exports = {
   campoEmail,
   campoPassword,
@@ -109,5 +120,6 @@ module.exports = {
   campoFirebaseId,
   campoObservaciones,
   campoEstadoPedido,
-  campoPrecio
+  campoPrecio,
+  campoPrecioOpcion
 };

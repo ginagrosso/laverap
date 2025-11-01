@@ -1,4 +1,6 @@
 const db = require('../../config/firebase.config');
+const AppError = require('../errors/AppError');
+const ERROR_CODES = require('../errors/error.codes');
 
 const getAllServices = async () => {
     const servicesRef = db.collection('servicios');
@@ -39,7 +41,11 @@ const getServiceById = async (servicioId) => {
   const doc = await db.collection('servicios').doc(servicioId).get();
   
   if (!doc.exists) {
-    throw new Error('El servicio solicitado no existe.');
+    throw new AppError(
+      ERROR_CODES.SERVICE_NOT_FOUND,
+      'El servicio solicitado no existe',
+      404
+    );
   }
   
   return { id: doc.id, ...doc.data() };
@@ -75,7 +81,7 @@ const deactivateService = async (servicioId) => {
 module.exports = {
   getAllServices,
   createService,
-  getServiceById,     
-  updateService,       
-  deactivateService    
+  getServiceById,
+  updateService,
+  deactivateService
 };

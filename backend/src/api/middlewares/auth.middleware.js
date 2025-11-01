@@ -1,43 +1,64 @@
 const jwt = require('jsonwebtoken');
 const db = require('../../config/firebase.config');
+const AppError = require('../../core/errors/AppError');
+const ERROR_CODES = require('../../core/errors/error.codes');
 
+// Verifica que el usuario esté autenticado
 const protect = async (req, res, next) => {
-  let token;
+  try {
+    let token;
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
+    // Extrae el token del header
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const userDoc = await db.collection('clientes').doc(decoded.id).get();
-      
-      if (!userDoc.exists) {
-        return res.status(401).json({ message: 'No se encontró el usuario de este token.' });
-      }
-
-      const { password, ...userData } = userDoc.data();
-      req.user = { id: userDoc.id, ...userData };
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'No autorizado, token inválido.' });
     }
-  }
 
-  if (!token) {
-    res.status(401).json({ message: 'No autorizado, no se proporcionó un token.' });
+    if (!token) {
+      throw new AppError(
+        ERROR_CODES.AUTH_UNAUTHORIZED,
+        'Token no proporcionado',
+        401
+      );
+    }
+
+    // Verifica el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // Busca el usuario en la base de datos
+    const userDoc = await db.collection('clientes').doc(decoded.id).get();
+    
+    if (!userDoc.exists) {
+      throw new AppError(
+        ERROR_CODES.USER_NOT_FOUND,
+        'Usuario no encontrado',
+        404
+      );
+    }
+
+    // Carga los datos del usuario en req.user (sin password)
+    const { password, ...userData } = userDoc.data();
+    req.user = { 
+      id: userDoc.id, 
+      ...userData 
+    };
+
+    next();
+  } catch (error) {
+    // Los errores de JWT son manejados por el error-handler
+    next(error);
   }
 };
 
-// --- NUEVA FUNCIÓN DE AUTORIZACIÓN ---
+// Verifica que el usuario tenga uno de los roles permitidos
 const authorize = (...roles) => {
   return (req, res, next) => {
-    // El middleware 'protect' ya debió haber añadido 'req.user'
     if (!req.user || !roles.includes(req.user.rol)) {
-      // Si el rol del usuario no está en la lista de roles permitidos
-      return res.status(403).json({ message: 'No tienes permiso para realizar esta acción.' });
+      return next(new AppError(
+        ERROR_CODES.AUTH_FORBIDDEN,
+        'No tienes permisos para esta acción',
+        403
+      ));
     }
-    // Si el rol es correcto, pasa a la siguiente función
     next();
   };
 };

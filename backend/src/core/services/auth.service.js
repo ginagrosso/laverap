@@ -2,6 +2,8 @@ const db = require('../../config/firebase.config'); // Importamos la conexión a
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const joi = require('joi');
+const ERROR_CODES = require('../errors/error.codes');
+const AppError = require('../errors/AppError');
 
 // Esquemas de validación con Joi
 const registerSchema = joi.object({
@@ -61,12 +63,16 @@ const registerNewUser = async (userData) => {
   // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
   const emailNormalizado = email.toLowerCase().trim();
 
-  // 1. Verificar si el usuario ya existe
-  const usersRef = db.collection('clientes'); // Usamos la colección 'clientes' como en el diagrama
+  // Verificar si el usuario ya existe
+  const usersRef = db.collection('clientes');
   const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
 
   if (!snapshot.empty) {
-    throw new Error('El correo electrónico ya está registrado.');
+    throw new AppError(
+      ERROR_CODES.AUTH_EMAIL_EXISTS,
+      'El email ya está registrado',
+      400
+    );
   }
 
   // 2. Hashear la contraseña
@@ -109,27 +115,35 @@ const loginUser = async (loginData) => {
   // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
   const emailNormalizado = email.toLowerCase().trim();
 
-  // 1. Buscar al usuario por su correo electrónico
+  // Buscar al usuario por su correo electrónico
   const usersRef = db.collection('clientes');
   const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
 
   if (snapshot.empty) {
-    throw new Error('Credenciales inválidas.'); // Error genérico por seguridad
+    throw new AppError(
+      ERROR_CODES.AUTH_USER_NOT_FOUND,
+      'Usuario no encontrado',
+      404
+    );
   }
 
-  // 2. Obtener los datos del usuario encontrado
+  // Obtener los datos del usuario encontrado
   const userDoc = snapshot.docs[0];
   const userData = userDoc.data();
   const userId = userDoc.id;
 
-  // 3. Comparar la contraseña enviada con la contraseña hasheada en la BD
+  // Comparar la contraseña enviada con la contraseña hasheada en la BD
   const isPasswordCorrect = await bcrypt.compare(password, userData.password);
 
   if (!isPasswordCorrect) {
-    throw new Error('Credenciales inválidas.'); // Mismo error genérico
+    throw new AppError(
+      ERROR_CODES.AUTH_INVALID_PASSWORD,
+      'Contraseña incorrecta',
+      401
+    );
   }
 
-  // 4. Si la contraseña es correcta, generar un JWT
+  // Si la contraseña es correcta, generar un JWT
   const payload = {
     id: userId,
     email: userData.email,
@@ -140,7 +154,7 @@ const loginUser = async (loginData) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-  // 5. Devolver los datos del usuario y el token
+  // Devolver los datos del usuario y el token
   return {
     usuario: {
       id: userId,

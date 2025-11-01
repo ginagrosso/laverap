@@ -1,5 +1,5 @@
 const joi = require('joi');
-const { campoNombre, campoPrecio, campoFirebaseId } = require('./common.schemas');
+const { campoNombre, campoPrecio, campoPrecioOpcion, campoFirebaseId } = require('./common.schemas');
 
 // Schema principal que valida según el modelo de precio
 const servicioSchema = joi.object({
@@ -46,7 +46,7 @@ const servicioSchema = joi.object({
   adicionales: joi.when('modeloDePrecio', {
     is: 'paqueteConAdicional',
     then: joi.object()
-      .pattern(joi.string(), campoPrecio)
+      .pattern(joi.string(), campoPrecioOpcion)
       .required()
       .messages({
         'object.base': 'Los adicionales deben ser un objeto.',
@@ -58,7 +58,7 @@ const servicioSchema = joi.object({
   opciones: joi.when('modeloDePrecio', {
     is: 'porOpciones',
     then: joi.object()
-      .pattern(joi.string(), campoPrecio)
+      .pattern(joi.string(), campoPrecioOpcion)
       .required()
       .messages({
         'object.base': 'Las opciones deben ser un objeto.',
@@ -69,7 +69,7 @@ const servicioSchema = joi.object({
       then: joi.object()
         .pattern(
           joi.string(),
-          joi.object().pattern(joi.string(), campoPrecio)
+          joi.object().pattern(joi.string(), campoPrecioOpcion)
         )
         .required()
         .messages({

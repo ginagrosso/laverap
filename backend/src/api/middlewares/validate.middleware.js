@@ -1,34 +1,31 @@
-/**
- * Middleware genérico para validar datos con Joi
- * Permite validar body, params o query de una request
- */
+const AppError = require('../../core/errors/AppError');
+const ERROR_CODES = require('../../core/errors/error.codes');
 
-/**
- * @param {Object} schema - Schema de Joi a usar para validar
- * @param {string} property - Qué parte del request validar: 'body', 'params' o 'query'
- * @returns {Function} Middleware de Express
- */
+// Middleware genérico para validar datos con Joi
 const validate = (schema, property = 'body') => {
   return (req, res, next) => {
     // Validar los datos según el schema
     const { error, value } = schema.validate(req[property], { 
-      abortEarly: false,  // Devuelve todos los errores, no solo el primero
-      stripUnknown: true  // Elimina campos que no están en el schema
+      abortEarly: false,
+      stripUnknown: true
     });
 
-    // Si hay errores, devolver 400 con los mensajes
+    // Si hay errores de validación, crear AppError
     if (error) {
       const errores = error.details.map(err => err.message);
-      return res.status(400).json({
-        message: 'Errores de validación',
-        errors: errores
-      });
+      
+      return next(new AppError(
+        ERROR_CODES.VALIDATION_ERROR,
+        'Errores de validación',
+        400,
+        true,
+        errores
+      ));
     }
 
     // Reemplazar los datos del request con los valores validados
     req[property] = value;
     
-    // Continuar al siguiente middleware/controller
     next();
   };
 };

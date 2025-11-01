@@ -1,22 +1,22 @@
 const serviceService = require('../../core/services/service.service');
 
-const getServices = async (req, res) => {
-    try {
-        const services = await serviceService.getAllServices();
-        res.status(200).json({
-            message: `Se encontraron ${services.length} servicios.`,
-            data: services
-        });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los servicios.' });
-    }
+// Obtiene todos los servicios
+const getServices = async (req, res, next) => {
+  try {
+    const services = await serviceService.getAllServices();
+    
+    res.status(200).json({
+      message: `Se encontraron ${services.length} servicios.`,
+      data: services
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// --- NUEVA FUNCIÓN PARA CREAR SERVICIOS ---
-
-const createService = async (req, res) => {
+// Crea un nuevo servicio
+const createService = async (req, res, next) => {
   try {
-    // Crea el servicio (validación ya hecha por Joi)
     const nuevoServicio = await serviceService.createService(req.body);
     
     res.status(201).json({
@@ -24,15 +24,12 @@ const createService = async (req, res) => {
       data: nuevoServicio
     });
   } catch (error) {
-    res.status(500).json({ 
-      message: 'Error al crear el servicio.',
-      error: error.message 
-    });
+    next(error);
   }
 };
 
 // Obtiene un servicio por ID
-const getServiceById = async (req, res) => {
+const getServiceById = async (req, res, next) => {
   try {
     const servicio = await serviceService.getServiceById(req.params.id);
     
@@ -41,15 +38,12 @@ const getServiceById = async (req, res) => {
       data: servicio
     });
   } catch (error) {
-    const statusCode = error.message.includes('no existe') ? 404 : 500;
-    res.status(statusCode).json({ 
-      message: error.message 
-    });
+    next(error);
   }
 };
 
 // Actualiza un servicio
-const updateService = async (req, res) => {
+const updateService = async (req, res, next) => {
   try {
     const servicioActualizado = await serviceService.updateService(
       req.params.id,
@@ -61,31 +55,25 @@ const updateService = async (req, res) => {
       data: servicioActualizado
     });
   } catch (error) {
-    const statusCode = error.message.includes('no existe') ? 404 : 500;
-    res.status(statusCode).json({ 
-      message: error.message 
-    });
+    next(error);
   }
 };
 
 // Desactiva un servicio
-const deactivateService = async (req, res) => {
+const deactivateService = async (req, res, next) => {
   try {
     const resultado = await serviceService.deactivateService(req.params.id);
     
     res.status(200).json(resultado);
   } catch (error) {
-    const statusCode = error.message.includes('no existe') ? 404 : 500;
-    res.status(statusCode).json({ 
-      message: error.message 
-    });
+    next(error);
   }
 };
 
 module.exports = {
   getServices,
   createService,
-  getServiceById,      
-  updateService,       
-  deactivateService    
+  getServiceById,
+  updateService,
+  deactivateService
 };
