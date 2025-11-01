@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/order.controller');
 const { protect, authorize } = require('../middlewares/auth.middleware'); // Importar authorize
+const { chequearPropiedad } = require('../middlewares/propiedad.middleware');
 const { validate } = require('../middlewares/validate.middleware');
 const { 
   crearPedidoSchema,
@@ -42,6 +43,7 @@ router.get(
   '/:id',
   protect,
   validate(obtenerPedidoPorIdSchema, 'params'),
+  chequearPropiedad('pedidos', 'clienteId'),
   orderController.getOrderById
 );
 

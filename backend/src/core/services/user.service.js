@@ -1,5 +1,4 @@
 const db = require('../../config/firebase.config'); // Importa la configuración de Firebase/Firestore
-const { actualizarPerfilSchema } = require('../schemas/user.schemas');
 
 /**
  * Servicio para gestionar usuarios
@@ -46,15 +45,10 @@ const getAllUsers = async () => {
  * Obtiene un usuario específico por su ID
  * @param {string} userId - ID único del usuario en Firebase
  * @returns {Promise<Object>} - Datos del usuario (sin contraseña)
- * @throws {Error} - Si el ID no se proporciona o el usuario no existe
+ * @throws {Error} - Si el usuario no existe
  */
 const getUserById = async (userId) => {
-    // Validación: Verifica que se proporcionó un ID
-    if (!userId) {
-        throw new Error('El ID del usuario es obligatorio.');
-    }
-
-    // Obtiene referencia al documento específico del usuario
+  // Obtiene referencia al documento específico del usuario
     const userRef = db.collection('clientes').doc(userId);
     
     // Ejecuta la consulta para obtener el documento
@@ -75,27 +69,11 @@ const getUserById = async (userId) => {
 /**
  * Actualiza el perfil de un usuario existente
  * @param {string} userId - ID del usuario a actualizar
- * @param {Object} updateData - Datos a actualizar (nombre, telefono, direccion)
+ * @param {Object} updateData - Datos a actualizar (nombre, telefono, direccion) ya validados
  * @returns {Promise<Object>} - Usuario actualizado (sin contraseña)
- * @throws {Error} - Si hay errores de validación o el usuario no existe
+ * @throws {Error} - Si el usuario no existe
  */
 const updateUserProfile = async (userId, updateData) => {
-    // Validación con Joi: Verifica que los datos cumplan con el schema definido
-    const { error, value } = actualizarPerfilSchema.validate(updateData, { 
-        abortEarly: false  // Retorna todos los errores, no solo el primero
-    });
-    
-    // Si hay errores de validación, los formatea y lanza excepción
-    if (error) {
-        const mensajes = error.details.map(err => err.message).join(', ');
-        throw new Error(`Errores de validación: ${mensajes}`);
-    }
-
-    // Validación: Verifica que se proporcionó un ID
-    if (!userId) {
-        throw new Error('El ID del usuario es obligatorio.');
-    }
-
     // Obtiene referencia al documento del usuario
     const userRef = db.collection('clientes').doc(userId);
     const userDoc = await userRef.get();
@@ -107,7 +85,7 @@ const updateUserProfile = async (userId, updateData) => {
 
     // Prepara los datos a actualizar, agregando fecha de modificación
     const dataToUpdate = {
-        ...value,  // Datos validados por Joi
+        ...updateData,  // Datos ya validados por middleware
         fechaActualizacion: new Date()  // Timestamp de la actualización
     };
 

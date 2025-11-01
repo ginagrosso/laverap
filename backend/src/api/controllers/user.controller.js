@@ -22,8 +22,24 @@ const getUsers = async (req, res) => {
   }
 };
 
+// Actualizar perfil del usuario autenticado
+const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id; // Del middleware protect
+    const updatedUser = await userService.updateUserProfile(userId, req.body);
+    
+    res.status(200).json({
+      message: 'Perfil actualizado exitosamente.',
+      data: updatedUser
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
   
   module.exports = {
     getMe,
     getUsers,
+    updateProfile,
   };

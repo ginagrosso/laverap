@@ -81,14 +81,6 @@ const createNewOrder = async (orderData, clienteId) => {
  * Obtiene todos los pedidos de un cliente específico
  */
 const getOrdersByClientId = async (clienteId) => {
-  if (!clienteId) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_MISSING_FIELD,
-      'El ID del cliente es obligatorio',
-      400
-    );
-  }
-
   const ordersRef = db.collection('pedidos');
   
   // Solo filtrar por clienteId (sin orderBy para evitar índice compuesto)
@@ -148,14 +140,6 @@ const getAllOrders = async () => {
  * Obtiene un pedido específico por su ID
  */
 const getOrderById = async (pedidoId) => {
-  if (!pedidoId) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_MISSING_FIELD,
-      'El ID del pedido es obligatorio',
-      400
-    );
-  }
-
   const pedidoRef = db.collection('pedidos').doc(pedidoId);
   const pedidoDoc = await pedidoRef.get();
 
@@ -178,14 +162,6 @@ const getOrderById = async (pedidoId) => {
  * Valida que la transición de estado sea válida
  */
 const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) => {
-  if (!pedidoId) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_MISSING_FIELD,
-      'El ID del pedido es obligatorio',
-      400
-    );
-  }
-
   // Obtener el pedido actual
   const pedidoRef = db.collection('pedidos').doc(pedidoId);
   const pedidoDoc = await pedidoRef.get();
@@ -229,14 +205,6 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) =>
  * Valida que el pedido pueda recibir un pago
  */
 const registerPayment = async (pedidoId, datosPago) => {
-  if (!pedidoId) {
-    throw new AppError(
-      ERROR_CODES.VALIDATION_MISSING_FIELD,
-      'El ID del pedido es obligatorio',
-      400
-    );
-  }
-
   // Obtener el pedido
   const pedidoRef = db.collection('pedidos').doc(pedidoId);
   const pedidoDoc = await pedidoRef.get();

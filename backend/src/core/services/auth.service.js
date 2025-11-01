@@ -1,71 +1,18 @@
 const db = require('../../config/firebase.config'); // Importamos la conexión a Firestore
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const joi = require('joi');
-const ERROR_CODES = require('../errors/error.codes');
 const AppError = require('../errors/AppError');
-
-// Esquemas de validación con Joi
-const registerSchema = joi.object({
-  nombre: joi.string().trim().min(2).max(50).required().messages({
-    'string.empty': 'El nombre es un campo obligatorio.',
-    'string.min': 'El nombre debe tener al menos 2 caracteres.',
-    'string.max': 'El nombre no puede superar los 50 caracteres.'
-  }),
-  email: joi.string().trim().email({tlds: { allow: false }}) // Acepta cualquier dominio, no solo .com, .net, etc.
-  .lowercase()
-  .required()
-  .messages({
-    'string.empty': 'El correo electrónico es un campo obligatorio.',
-    'string.email': 'El correo electrónico debe tener un formato válido.'
-  }),
-  password: joi.string().min(6).max(128).required(). messages({
-    'string.empty': 'La contraseña es un campo obligatorio.',
-    'string.min': 'La contraseña debe tener al menos 6 caracteres.',
-    'string.max': 'La contraseña no puede superar los 128 caracteres.'
-  }),
-  rol: joi.string()
-    .valid('cliente', 'admin')
-    .default('cliente') // ← Valor por defecto
-    .messages({
-      'any.only': 'El rol debe ser "cliente" o "admin".'
-    }),
-  fechaCreacion: joi.date()
-    .default(() => new Date()) // ← Se ejecuta al validar
-});
-
-// Esquema para validar el login
-
-const loginSchema = joi.object({
-  email: joi.string().trim().email({tlds: { allow: false }}).lowercase().required().messages({
-    'string.empty': 'El correo electrónico es un campo obligatorio.',
-    'string.email': 'El correo electrónico debe tener un formato válido.'
-  }),
-  password: joi.string().required().messages({
-    'string.empty': 'La contraseña es obligatoria.'
-  })
-});
+const ERROR_CODES = require('../errors/error.codes');
 
 // --- FUNCIÓN PARA REGISTRAR UN NUEVO USUARIO ---
 
 const registerNewUser = async (userData) => {
-  // Validar datos de entrada con Joi
-  const { error, value } = registerSchema.validate(userData,{ abortEarly: false });// Devuelve TODOS los errores, no solo el primero
-  
-  if (error) {
-    //Formateo de errores para mejor legibilidad
-    const errorMessages = error.details.map(detail => detail.message);
-    throw new Error(`Errores de validación: ${errorMessages.join(', ')}`);
-  }
-
-  const { nombre, email, password, rol, fechaCreacion } = value; // Usamos 'value' que ya está validado y sanitizado
-
-  // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
-  const emailNormalizado = email.toLowerCase().trim();
+  // Los datos ya vienen validados desde el middleware
+  const { nombre, email, password, telefono, direccion, role } = userData;
 
   // Verificar si el usuario ya existe
   const usersRef = db.collection('clientes');
-  const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
+  const snapshot = await usersRef.where('email', '==', email).get();
 
   if (!snapshot.empty) {
     throw new AppError(
@@ -82,10 +29,12 @@ const registerNewUser = async (userData) => {
   // 3. Crear el nuevo objeto de usuario
   const newUser = {
     nombre,
-    email: emailNormalizado, // Guardar siempre en minúsculas
+    email, // Joi ya normalizó a minúsculas en el middleware
     password: hashedPassword,
-    rol,
-    fechaCreacion,
+    role: role || 'cliente', // Default a 'cliente'
+    fechaCreacion: new Date(),
+    ...(telefono && { telefono }), // Solo agregar si existe
+    ...(direccion && { direccion }) // Solo agregar si existe
   };
 
   // 4. Guardar el usuario en Firestore
@@ -96,28 +45,18 @@ const registerNewUser = async (userData) => {
     id: userDoc.id,
     nombre: newUser.nombre,
     email: newUser.email,
-    rol: newUser.rol
+    role: newUser.role
   };
 };
 
 // --- FUNCIÓN PARA EL LOGIN ---
 const loginUser = async (loginData) => {
-  // Validar datos de entrada con Joi
-  const { error, value } = loginSchema.validate(loginData, { abortEarly: false });
-
-  if (error) {
-    const errorMessages = error.details.map(detalle => detalle.message)
-    throw new Error(`Errores de validación: ${errorMessages.join(', ')}`);
-  }
-
-  const { email, password } = value;
-
-  // Normalizar email a minúsculas (por si acaso, aunque Joi ya lo hace)
-  const emailNormalizado = email.toLowerCase().trim();
+  // Los datos ya vienen validados desde el middleware
+  const { email, password } = loginData;
 
   // Buscar al usuario por su correo electrónico
   const usersRef = db.collection('clientes');
-  const snapshot = await usersRef.where('email', '==', emailNormalizado).get();
+  const snapshot = await usersRef.where('email', '==', email).get();
 
   if (snapshot.empty) {
     throw new AppError(
