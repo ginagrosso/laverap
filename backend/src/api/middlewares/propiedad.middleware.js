@@ -15,7 +15,7 @@ const chequearPropiedad = (coleccion, campoUsuario) => {
       const usuarioActual = req.user; // Cargado por el middleware protect
 
       // Admin tiene acceso total
-      if (usuarioActual.role === 'admin') {
+      if (usuarioActual.rol === 'admin') {
         return next();
       }
 

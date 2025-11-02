@@ -3,69 +3,57 @@
  * Funciones helper para validar transiciones y reglas de negocio
  */
 
-/**
- * Matriz de transiciones válidas entre estados de pedidos
- */
-const TRANSICIONES_VALIDAS = {
-  'Recibido': ['En Proceso', 'Cancelado'],
-  'En Proceso': ['Listo', 'Cancelado'],
-  'Listo': ['Entregado', 'Cancelado'],
-  'Entregado': [],  // Estado final
-  'Cancelado': []   // Estado final
-};
+// Estados válidos del pedido
+const ESTADOS_VALIDOS = ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado'];
 
 /**
- * Valida si una transición de estado es válida
+ * Valida si la transición de estado es permitida
+ * Flujo: Pendiente → En Proceso → Finalizado → Entregado
+ * 
  * @param {string} estadoActual - Estado actual del pedido
- * @param {string} nuevoEstado - Estado al que se quiere cambiar
- * @returns {boolean} true si la transición es válida
- * @throws {Error} si la transición no es válida
+ * @param {string} nuevoEstado - Nuevo estado deseado
+ * @param {string} rolUsuario - Rol del usuario ('cliente' o 'admin')
  */
-const validarTransicionEstado = (estadoActual, nuevoEstado) => {
-  // Verificar que el estado actual existe
-  if (!TRANSICIONES_VALIDAS[estadoActual]) {
+const validarTransicionEstado = (estadoActual, nuevoEstado, rolUsuario = 'admin') => {
+  // Transiciones de estado permitidas según el rol
+  const TRANSICIONES_ADMIN = {
+    'Pendiente': ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado'],
+    'En Proceso': ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado'],
+    'Finalizado': ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado'],
+    'Entregado': ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado'],
+    'Cancelado': ['Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado']
+  };
+
+  const TRANSICIONES_CLIENTE = {
+    'Pendiente': ['Cancelado'],
+    'En Proceso': [],
+    'Finalizado': [],
+    'Entregado': [],
+    'Cancelado': []
+  };
+
+  // Selecciona las transiciones según el rol
+  const transicionesPermitidas = rolUsuario === 'admin' 
+    ? TRANSICIONES_ADMIN[estadoActual] 
+    : TRANSICIONES_CLIENTE[estadoActual];
+
+  // Verifica que el estado actual sea válido
+  if (!ESTADOS_VALIDOS.includes(estadoActual)) {
     throw new Error(`Estado actual inválido: "${estadoActual}".`);
   }
 
-  // Obtener transiciones permitidas
-  const transicionesPermitidas = TRANSICIONES_VALIDAS[estadoActual];
-  
-  // Verificar si el nuevo estado es válido
-  if (!transicionesPermitidas.includes(nuevoEstado)) {
-    const opcionesTexto = transicionesPermitidas.length > 0 
-      ? transicionesPermitidas.join(', ') 
-      : 'ninguna (estado final)';
-      
-    throw new Error(
-      `No se puede cambiar de "${estadoActual}" a "${nuevoEstado}". ` +
-      `Transiciones válidas: ${opcionesTexto}.`
-    );
+  // Verifica que el nuevo estado sea válido
+  if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
+    throw new Error(`Estado nuevo inválido: "${nuevoEstado}".`);
   }
 
-  return true;
-};
-
-/**
- * Valida que un pedido pueda recibir un pago
- * Solo se pueden pagar pedidos en estado "Listo" o "Entregado"
- * @param {Object} pedido - Objeto del pedido
- * @returns {boolean} true si se puede pagar
- * @throws {Error} si el pedido no puede recibir un pago
- */
-const validarPedidoPagable = (pedido) => {
-  const estadosPermitidos = ['Listo', 'Entregado'];
-  
-  // Verificar que el pedido esté en un estado pagable
-  if (!estadosPermitidos.includes(pedido.estado)) {
-    throw new Error(
-      `No se puede registrar el pago. El pedido debe estar en estado "Listo" o "Entregado". ` +
-      `Estado actual: "${pedido.estado}".`
-    );
-  }
-
-  // Verificar que no esté ya pagado
-  if (pedido.estadoPago === 'Pagado') {
-    throw new Error('Este pedido ya fue pagado anteriormente.');
+  // Verifica que la transición sea permitida
+  if (!transicionesPermitidas || !transicionesPermitidas.includes(nuevoEstado)) {
+    const mensajeCliente = rolUsuario === 'cliente' 
+      ? 'Los clientes solo pueden cancelar pedidos en estado "Pendiente".'
+      : `No se puede cambiar de "${estadoActual}" a "${nuevoEstado}". Transiciones permitidas: ${transicionesPermitidas?.join(', ') || 'ninguna'}`;
+    
+    throw new Error(mensajeCliente);
   }
 
   return true;
@@ -73,5 +61,5 @@ const validarPedidoPagable = (pedido) => {
 
 module.exports = {
   validarTransicionEstado,
-  validarPedidoPagable
+  ESTADOS_VALIDOS
 };

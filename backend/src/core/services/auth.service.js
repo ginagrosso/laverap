@@ -8,7 +8,7 @@ const ERROR_CODES = require('../errors/error.codes');
 
 const registerNewUser = async (userData) => {
   // Los datos ya vienen validados desde el middleware
-  const { nombre, email, password, telefono, direccion, role } = userData;
+  const { nombre, email, password, telefono, direccion, rol } = userData;
 
   // Verificar si el usuario ya existe
   const usersRef = db.collection('clientes');
@@ -31,7 +31,7 @@ const registerNewUser = async (userData) => {
     nombre,
     email, // Joi ya normalizó a minúsculas en el middleware
     password: hashedPassword,
-    role: role || 'cliente', // Default a 'cliente'
+    rol: rol || 'cliente', // Default a 'cliente'
     fechaCreacion: new Date(),
     ...(telefono && { telefono }), // Solo agregar si existe
     ...(direccion && { direccion }) // Solo agregar si existe
@@ -45,7 +45,7 @@ const registerNewUser = async (userData) => {
     id: userDoc.id,
     nombre: newUser.nombre,
     email: newUser.email,
-    role: newUser.role
+    rol: newUser.rol
   };
 };
 

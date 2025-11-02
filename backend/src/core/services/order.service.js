@@ -1,6 +1,6 @@
 const db = require('../../config/firebase.config');
 const { calcularPrecio } = require('./helpers/price-calculator');
-const { validarTransicionEstado, validarPedidoPagable } = require('./helpers/order.validator');
+const { validarTransicionEstado } = require('./helpers/order.validator');
 const AppError = require('../errors/AppError');
 const ERROR_CODES = require('../errors/error.codes');
 
@@ -63,8 +63,7 @@ const createNewOrder = async (orderData, clienteId) => {
     detalle,
     observaciones,
     precioEstimado,
-    estado: 'Recibido',
-    estadoPago: 'Pendiente',
+    estado: 'Pendiente',
     fechaCreacion: new Date(),
     fechaActualizacion: new Date()
   };
@@ -159,9 +158,9 @@ const getOrderById = async (pedidoId) => {
 
 /**
  * Actualiza el estado de un pedido
- * Valida que la transición de estado sea válida
+ * Valida que la transición de estado sea válida según el rol
  */
-const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) => {
+const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null, rolUsuario = 'admin') => {
   // Obtener el pedido actual
   const pedidoRef = db.collection('pedidos').doc(pedidoId);
   const pedidoDoc = await pedidoRef.get();
@@ -177,8 +176,8 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) =>
   const pedidoActual = pedidoDoc.data();
   const estadoActual = pedidoActual.estado;
 
-  // Validar que la transición de estado sea válida
-  validarTransicionEstado(estadoActual, nuevoEstado);
+  // Validar que la transición de estado sea válida según el rol
+  validarTransicionEstado(estadoActual, nuevoEstado, rolUsuario);
 
   // Actualizar el estado en Firestore
   const datosActualizacion = {
@@ -200,55 +199,10 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null) =>
   };
 };
 
-/**
- * Registra un pago para un pedido
- * Valida que el pedido pueda recibir un pago
- */
-const registerPayment = async (pedidoId, datosPago) => {
-  // Obtener el pedido
-  const pedidoRef = db.collection('pedidos').doc(pedidoId);
-  const pedidoDoc = await pedidoRef.get();
-  
-  if (!pedidoDoc.exists) {
-    throw new AppError(
-      ERROR_CODES.ORDER_NOT_FOUND,
-      'Pedido no encontrado',
-      404
-    );
-  }
-
-  const pedidoActual = { id: pedidoId, ...pedidoDoc.data() };
-
-  // Validar que el pedido se pueda pagar
-  validarPedidoPagable(pedidoActual);
-
-  // Registrar el pago en Firestore
-  const datosActualizacion = {
-    estadoPago: 'Pagado',
-    metodoPago: datosPago.metodo,
-    montoPagado: datosPago.monto,
-    fechaPago: new Date(),
-    fechaActualizacion: new Date()
-  };
-
-  // Si hay observaciones sobre el pago, agregarlas
-  if (datosPago.observaciones) {
-    datosActualizacion.observacionesPago = datosPago.observaciones;
-  }
-
-  await pedidoRef.update(datosActualizacion);
-
-  return { 
-    ...pedidoActual, 
-    ...datosActualizacion 
-  };
-};
-
 module.exports = {
   createNewOrder,
   getOrdersByClientId,
   getAllOrders,        
   getOrderById,        
-  updateOrderStatus,   
-  registerPayment      
+  updateOrderStatus
 };

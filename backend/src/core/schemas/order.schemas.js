@@ -12,22 +12,31 @@ const crearPedidoSchema = joi.object({
     'string.length': 'El ID del servicio no es válido.'
   }),
   
-  detalle: joi.object({
-    // Para modelo "paqueteConAdicional"
-    paqueteBase: joi.string().optional(),
-    adicionales: joi.array().items(joi.string()).optional(),
+  detalle: joi.alternatives().try(
+    // Opción 1: Objeto (para paqueteConAdicional y porOpciones)
+    joi.object({
+      // Para modelo "paqueteConAdicional" - adicionales como array de strings
+      adicionales: joi.array().items(joi.string()).optional(),
+      
+      // Para modelo "porOpciones" - una sola opción seleccionada
+      opcion: joi.string().optional(),
+      opcionSeleccionada: joi.string().optional(), // Alias alternativo
+    })
+      .unknown(true) // Permite categorías dinámicas para porOpcionesMultiples (Tipo, Tamaño, etc.)
+      .messages({
+        'object.base': 'El detalle del pedido debe ser un objeto válido.'
+      }),
     
-    // Para modelo "porOpcionesMultiples"
-    // Permite propiedades dinámicas (categorías como "Tipo", "Tamaño", etc.)
-    cantidad: joi.number().integer().min(1).optional(),
-    
-    // Para modelo "porOpciones"
-    opcion: joi.string().optional(),
-  })
-    .unknown(true) // Permite propiedades adicionales para categorías dinámicas
+    // Opción 2: Array de objetos (para porOpcionesMultiples con múltiples items)
+    joi.array().items(
+      joi.object({
+        opcionesSeleccionadas: joi.object().pattern(joi.string(), joi.string()).required(),
+        cantidad: joi.number().integer().min(1).required()
+      })
+    )
+  )
     .required()
     .messages({
-      'object.base': 'El detalle del pedido debe ser un objeto.',
       'any.required': 'El detalle del pedido es obligatorio.'
     }),
   
@@ -37,13 +46,13 @@ const crearPedidoSchema = joi.object({
     'object.base': 'Los datos del pedido no son válidos.'
   });
 
-// Schema para actualizar el estado de un pedido (solo lavanderos/admin)
+// Schema para actualizar el estado de un pedido (solo admin)
 const actualizarEstadoPedidoSchema = joi.object({
   estado: joi.string()
-    .valid('En Proceso', 'Listo', 'Entregado', 'Cancelado')
+    .valid('Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado')
     .required()
     .messages({
-      'any.only': 'El estado debe ser: En Proceso, Listo, Entregado o Cancelado.',
+      'any.only': 'El estado debe ser: Pendiente, En Proceso, Finalizado, Entregado o Cancelado.',
       'string.empty': 'El estado es un campo obligatorio.'
     }),
   
@@ -61,10 +70,10 @@ const obtenerPedidoPorIdSchema = joi.object({
 // Schema para filtrar pedidos por estado (query params)
 const filtrarPedidosPorEstadoSchema = joi.object({
   estado: joi.string()
-    .valid('Recibido', 'En Proceso', 'Listo', 'Entregado', 'Cancelado')
+    .valid('Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado')
     .optional()
     .messages({
-      'any.only': 'El estado debe ser: Recibido, En Proceso, Listo, Entregado o Cancelado.'
+      'any.only': 'El estado debe ser: Pendiente, En Proceso, Finalizado, Entregado o Cancelado.'
     })
 });
 

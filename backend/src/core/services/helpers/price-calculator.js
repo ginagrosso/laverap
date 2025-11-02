@@ -56,19 +56,46 @@ const calcularPrecioPaqueteConAdicional = (serviceData, detalle) => {
 /**
  * Calcula el precio para modelo "porOpcionesMultiples"
  * Ejemplo: "Lavado de Acolchados" - suma de opciones de diferentes categorías (Tamaño + Tipo)
+ * Soporta dos formatos:
+ * 1. Objeto simple: { "Tipo": "Acolchado", "Tamaño": "Queen" } - para 1 item
+ * 2. Array con cantidades: [{ opcionesSeleccionadas: {...}, cantidad: 2 }] - para múltiples items
  */
 const calcularPrecioPorOpcionesMultiples = (serviceData, detalle) => {
-  let precioTotal = 0;
-
-  // Recorrer cada categoría de opciones disponibles (ej: "Tamaño", "Tipo")
   const categoriasOpciones = serviceData.opciones || {};
+  const precioBase = serviceData.precioBase || 0;
+  
+  // Si el detalle es un array, calcular con cantidades
+  if (Array.isArray(detalle)) {
+    let precioTotal = 0;
+    
+    detalle.forEach(item => {
+      let precioItem = precioBase; // Cada item empieza con el precio base
+      
+      // Sumar el precio de cada opción seleccionada para este item
+      Object.keys(item.opcionesSeleccionadas || {}).forEach(categoria => {
+        const opcionSeleccionada = item.opcionesSeleccionadas[categoria];
+        const precioOpcion = categoriasOpciones[categoria]?.[opcionSeleccionada];
+        
+        if (precioOpcion !== undefined) {
+          precioItem += precioOpcion;
+        }
+      });
+      
+      // Multiplicar por la cantidad y sumar al total
+      const cantidad = item.cantidad || 1;
+      precioTotal += precioItem * cantidad;
+    });
+    
+    return precioTotal;
+  }
+  
+  // Si es un objeto simple (1 item), usar lógica original
+  let precioTotal = precioBase; // Empezar con precio base
   
   Object.keys(categoriasOpciones).forEach(categoria => {
-    // Obtener la opción seleccionada por el cliente para esta categoría
     const opcionSeleccionada = detalle[categoria];
     
     if (opcionSeleccionada) {
-      // Buscar el precio de la opción seleccionada en Firebase
       const precioOpcion = categoriasOpciones[categoria][opcionSeleccionada];
       
       if (precioOpcion !== undefined) {

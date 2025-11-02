@@ -75,15 +75,21 @@ const updateOrderStatus = async (req, res, next) => {
   }
 };
 
-// Registrar un pago para un pedido (solo admin/operario)
-const registerPayment = async (req, res, next) => {
+// Cancelar un pedido (cliente - solo si está Pendiente)
+const cancelOrder = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const pedidoConPago = await orderService.registerPayment(id, req.body);
+    const { observaciones } = req.body;
+    const pedidoActualizado = await orderService.updateOrderStatus(
+      id, 
+      'Cancelado', 
+      observaciones || 'Cancelado por el cliente',
+      'cliente'
+    );
 
     res.status(200).json({
-      message: 'Pago registrado exitosamente.',
-      data: pedidoConPago
+      message: 'Pedido cancelado exitosamente.',
+      data: pedidoActualizado
     });
   } catch (error) {
     next(error);
@@ -95,6 +101,6 @@ module.exports = {
   getMyOrders,
   getAllOrders,        
   getOrderById,        
-  updateOrderStatus,   
-  registerPayment      
+  updateOrderStatus,
+  cancelOrder
 };

@@ -82,10 +82,10 @@ const campoObservaciones = joi.string()
 
 // Estado de pedido (enum)
 const campoEstadoPedido = joi.string()
-  .valid('Recibido', 'En Proceso', 'Listo', 'Entregado', 'Cancelado')
+  .valid('Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado')
   .required()
   .messages({
-    'any.only': 'El estado debe ser: Recibido, En Proceso, Listo, Entregado o Cancelado.',
+    'any.only': 'El estado debe ser: Pendiente, En Proceso, Finalizado, Entregado o Cancelado.',
     'string.empty': 'El estado es un campo obligatorio.'
   });
 

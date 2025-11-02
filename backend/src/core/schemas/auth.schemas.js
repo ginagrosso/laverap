@@ -3,7 +3,7 @@ const joi = require('joi');
 /**
  * Schema para registro de usuarios
  * Campos obligatorios: nombre, email, password
- * Campos opcionales: telefono, direccion, role
+ * Campos opcionales: telefono, direccion, rol
  */
 const registroSchema = joi.object({
   nombre: joi.string()
@@ -57,7 +57,7 @@ const registroSchema = joi.object({
       'string.max': 'La dirección no puede superar los 200 caracteres.'
     }),
   
-  role: joi.string()
+  rol: joi.string()
     .valid('cliente', 'admin', 'operario')
     .default('cliente')
     .messages({

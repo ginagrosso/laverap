@@ -9,7 +9,6 @@ const {
   actualizarEstadoPedidoSchema,
   obtenerPedidoPorIdSchema
 } = require('../../core/schemas/order.schemas');
-const { registrarPagoSchema } = require('../../core/schemas/payment.schemas');
 
 /**
  * Rutas para gestión de pedidos
@@ -47,6 +46,15 @@ router.get(
   orderController.getOrderById
 );
 
+// PATCH /api/v1/orders/:id/cancel -> Cliente cancela su pedido (solo si está Pendiente)
+router.patch(
+  '/:id/cancel',
+  protect,
+  validate(obtenerPedidoPorIdSchema, 'params'),
+  chequearPropiedad('pedidos', 'clienteId'),
+  orderController.cancelOrder
+);
+
 // PATCH /api/v1/orders/:id/status -> Actualizar estado (admin u operario)
 router.patch(
   '/:id/status',
@@ -55,16 +63,6 @@ router.patch(
   validate(obtenerPedidoPorIdSchema, 'params'),
   validate(actualizarEstadoPedidoSchema, 'body'),
   orderController.updateOrderStatus
-);
-
-// POST /api/v1/orders/:id/payment -> Registrar pago (admin u operario)
-router.post(
-  '/:id/payment',
-  protect,
-  authorize('admin'), // Admin pueden registrar pagos
-  validate(obtenerPedidoPorIdSchema, 'params'),
-  validate(registrarPagoSchema, 'body'),
-  orderController.registerPayment
 );
 
 module.exports = router;
