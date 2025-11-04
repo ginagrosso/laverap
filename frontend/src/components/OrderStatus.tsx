@@ -4,11 +4,11 @@ import { Button } from "./ui/button";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-const statuses = ["Recibido", "En proceso", "Listo", "Entregado"] as const;
+const statuses = ["Pendiente", "En Proceso", "Finalizado", "Entregado"] as const;
 type Status = typeof statuses[number];
 
 export const OrderStatus = () => {
-  const [currentStatus, setCurrentStatus] = useState<Status>("Recibido");
+  const [currentStatus, setCurrentStatus] = useState<Status>("Pendiente");
 
   const handleUpdateStatus = () => {
     const currentIndex = statuses.indexOf(currentStatus);
