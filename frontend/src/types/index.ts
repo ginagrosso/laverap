@@ -2,7 +2,7 @@
 
 export type UserRole = "cliente" | "admin" | "empleado" | "dueño";
 
-export type OrderStatus = "Recibido" | "En Proceso" | "Listo" | "Entregado";
+export type OrderStatus = "Pendiente" | "En Proceso" | "Finalizado" | "Entregado" | "Cancelado";
 
 export type PricingModel =
   | "porCanasto"
@@ -99,4 +99,28 @@ export interface CreateOrderRequest {
   servicioId: string;
   detalle: OrderDetail;
   observaciones?: string | null;
+}
+
+// Service form data types for admin panel
+export interface PaqueteConAdicionalConfig {
+  precioBase: number;
+  adicionales: Record<string, number>; // e.g., { "planchado": 50 }
+}
+
+export interface PorOpcionesConfig {
+  opciones: Record<string, number>; // e.g., { "express": 100, "normal": 50 }
+}
+
+export interface PorOpcionesMultiplesConfig {
+  precioBase: number;
+  minimoUnidades: number;
+  opciones: Record<string, Record<string, number>>; // e.g., { "tamaño": { "grande": 50, "pequeño": 30 } }
+}
+
+export interface ServiceFormData {
+  nombre: string;
+  descripcion: string;
+  modeloDePrecio: "paqueteConAdicional" | "porOpciones" | "porOpcionesMultiples";
+  configuracionPrecios: PaqueteConAdicionalConfig | PorOpcionesConfig | PorOpcionesMultiplesConfig;
+  activo?: boolean;
 }

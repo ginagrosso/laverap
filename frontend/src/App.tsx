@@ -22,6 +22,7 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/admin/Dashboard";
 import Orders from "./pages/admin/Orders";
 import Statistics from "./pages/admin/Statistics";
+import AdminServices from "./pages/admin/Services";
 
 // Fallback
 import NotFound from "./pages/NotFound";
@@ -78,6 +79,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={["admin", "empleado", "dueño"]}>
                   <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/services"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "dueño"]}>
+                  <AdminServices />
                 </ProtectedRoute>
               }
             />

@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Package, Clock, Loader2, CheckCircle, TruckIcon, AlertCircle } from "lucide-react";
+import { Package, Clock, Loader2, CheckCircle, TruckIcon, AlertCircle, XCircle } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -14,12 +14,12 @@ import { useAuth } from "@/context/AuthContext";
 import { Order } from "@/types";
 
 const statusConfig = {
-  "Recibido": {
+  "Pendiente": {
     icon: Package,
     color: "bg-blue-500",
     textColor: "text-blue-700",
     bgColor: "bg-blue-50",
-    label: "Recibido",
+    label: "Pendiente",
   },
   "En Proceso": {
     icon: Loader2,
@@ -28,19 +28,26 @@ const statusConfig = {
     bgColor: "bg-amber-50",
     label: "En Proceso",
   },
-  "Listo": {
+  "Finalizado": {
     icon: CheckCircle,
     color: "bg-green-500",
     textColor: "text-green-700",
     bgColor: "bg-green-50",
-    label: "Listo para Retirar",
+    label: "Finalizado",
   },
   "Entregado": {
     icon: TruckIcon,
-    color: "bg-slate-500",
-    textColor: "text-slate-700",
-    bgColor: "bg-slate-50",
+    color: "bg-purple-500",
+    textColor: "text-purple-700",
+    bgColor: "bg-purple-50",
     label: "Entregado",
+  },
+  "Cancelado": {
+    icon: XCircle,
+    color: "bg-red-500",
+    textColor: "text-red-700",
+    bgColor: "bg-red-50",
+    label: "Cancelado",
   },
 };
 
@@ -229,62 +236,79 @@ export default function TrackOrder() {
                       )}
 
                       {/* Progress Bar */}
-                      <div className="mt-6">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium">Progreso</span>
-                          <span className="text-sm text-muted-foreground">
-                            {order.estado === "Entregado" && "100%"}
-                            {order.estado === "Listo" && "75%"}
-                            {order.estado === "En Proceso" && "50%"}
-                            {order.estado === "Recibido" && "25%"}
-                          </span>
+                      {order.estado !== "Cancelado" && (
+                        <div className="mt-6">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium">Progreso</span>
+                            <span className="text-sm text-muted-foreground">
+                              {order.estado === "Entregado" && "100%"}
+                              {order.estado === "Finalizado" && "75%"}
+                              {order.estado === "En Proceso" && "50%"}
+                              {order.estado === "Pendiente" && "25%"}
+                            </span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div
+                              className={`${config.color} h-2 rounded-full transition-all`}
+                              style={{
+                                width:
+                                  order.estado === "Entregado" ? "100%" :
+                                  order.estado === "Finalizado" ? "75%" :
+                                  order.estado === "En Proceso" ? "50%" :
+                                  "25%",
+                              }}
+                            />
+                          </div>
                         </div>
-                        <div className="w-full bg-muted rounded-full h-2">
-                          <div
-                            className={`${config.color} h-2 rounded-full transition-all`}
-                            style={{
-                              width:
-                                order.estado === "Entregado" ? "100%" :
-                                order.estado === "Listo" ? "75%" :
-                                order.estado === "En Proceso" ? "50%" :
-                                "25%",
-                            }}
-                          />
+                      )}
+
+                      {/* Cancelled Message */}
+                      {order.estado === "Cancelado" && (
+                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-red-700">
+                            <XCircle className="w-5 h-5" />
+                            <p className="font-semibold">Pedido Cancelado</p>
+                          </div>
+                          <p className="text-sm text-red-600 mt-1">
+                            Este pedido ha sido cancelado y no será procesado.
+                          </p>
                         </div>
-                      </div>
+                      )}
 
                       {/* Timeline */}
-                      <div className="mt-6 flex items-center justify-between text-xs">
-                        <div className="text-center">
-                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 bg-blue-500`} />
-                          <p className="text-muted-foreground">Recibido</p>
+                      {order.estado !== "Cancelado" && (
+                        <div className="mt-6 flex items-center justify-between text-xs">
+                          <div className="text-center">
+                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 bg-blue-500`} />
+                            <p className="text-muted-foreground">Pendiente</p>
+                          </div>
+                          <div className="flex-1 h-px bg-muted mx-2" />
+                          <div className="text-center">
+                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                              ["En Proceso", "Finalizado", "Entregado"].includes(order.estado)
+                                ? "bg-amber-500"
+                                : "bg-muted"
+                            }`} />
+                            <p className="text-muted-foreground">En Proceso</p>
+                          </div>
+                          <div className="flex-1 h-px bg-muted mx-2" />
+                          <div className="text-center">
+                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                              ["Finalizado", "Entregado"].includes(order.estado)
+                                ? "bg-green-500"
+                                : "bg-muted"
+                            }`} />
+                            <p className="text-muted-foreground">Finalizado</p>
+                          </div>
+                          <div className="flex-1 h-px bg-muted mx-2" />
+                          <div className="text-center">
+                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                              order.estado === "Entregado" ? "bg-purple-500" : "bg-muted"
+                            }`} />
+                            <p className="text-muted-foreground">Entregado</p>
+                          </div>
                         </div>
-                        <div className="flex-1 h-px bg-muted mx-2" />
-                        <div className="text-center">
-                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                            ["En Proceso", "Listo", "Entregado"].includes(order.estado)
-                              ? "bg-amber-500"
-                              : "bg-muted"
-                          }`} />
-                          <p className="text-muted-foreground">En Proceso</p>
-                        </div>
-                        <div className="flex-1 h-px bg-muted mx-2" />
-                        <div className="text-center">
-                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                            ["Listo", "Entregado"].includes(order.estado)
-                              ? "bg-green-500"
-                              : "bg-muted"
-                          }`} />
-                          <p className="text-muted-foreground">Listo</p>
-                        </div>
-                        <div className="flex-1 h-px bg-muted mx-2" />
-                        <div className="text-center">
-                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                            order.estado === "Entregado" ? "bg-slate-500" : "bg-muted"
-                          }`} />
-                          <p className="text-muted-foreground">Entregado</p>
-                        </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 );
