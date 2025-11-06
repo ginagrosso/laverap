@@ -64,6 +64,7 @@ const createNewOrder = async (orderData, clienteId) => {
     observaciones,
     precioEstimado,
     estado: 'Pendiente',
+    activo: true,
     fechaCreacion: new Date(),
     fechaActualizacion: new Date()
   };
@@ -82,9 +83,9 @@ const createNewOrder = async (orderData, clienteId) => {
 const getOrdersByClientId = async (clienteId) => {
   const ordersRef = db.collection('pedidos');
   
-  // Solo filtrar por clienteId (sin orderBy para evitar índice compuesto)
   const snapshot = await ordersRef
     .where('clienteId', '==', clienteId)
+    .where('activo', '==', true)
     .get();
   
   if (snapshot.empty) {
@@ -113,7 +114,9 @@ const getOrdersByClientId = async (clienteId) => {
  */
 const getAllOrders = async () => {
   const ordersRef = db.collection('pedidos');
-  const snapshot = await ordersRef.get();
+  const snapshot = await ordersRef
+    .where('activo', '==', true)
+    .get();
   
   if (snapshot.empty) {
     return [];
@@ -199,10 +202,94 @@ const updateOrderStatus = async (pedidoId, nuevoEstado, observaciones = null, ro
   };
 };
 
+// Actualizar cualquier campo de un pedido
+const updateOrder = async (pedidoId, datosActualizacion) => {
+  const pedidoRef = db.collection('pedidos').doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+
+  if (!pedidoDoc.exists) {
+    throw new AppError(
+      ERROR_CODES.ORDER_NOT_FOUND,
+      'Pedido no encontrado',
+      404
+    );
+  }
+
+  const pedidoActual = pedidoDoc.data();
+  const actualizacion = {
+    ...datosActualizacion,
+    fechaActualizacion: new Date()
+  };
+
+  // Si cambia servicio y detalle, recalcular precio
+  if (datosActualizacion.servicioId && datosActualizacion.detalle) {
+    const serviceDoc = await db.collection('servicios').doc(datosActualizacion.servicioId).get();
+    if (!serviceDoc.exists) {
+      throw new AppError(
+        ERROR_CODES.SERVICE_NOT_FOUND,
+        'Servicio no encontrado',
+        404
+      );
+    }
+    
+    const serviceData = serviceDoc.data();
+    actualizacion.precioEstimado = calcularPrecio(serviceData, datosActualizacion.detalle);
+    actualizacion.servicio = {
+      id: serviceDoc.id,
+      nombre: serviceData.nombre
+    };
+  }
+
+  await pedidoRef.update(actualizacion);
+
+  return {
+    id: pedidoId,
+    ...pedidoActual,
+    ...actualizacion
+  };
+};
+
+// Soft delete de un pedido
+const softDeleteOrder = async (pedidoId) => {
+  const pedidoRef = db.collection('pedidos').doc(pedidoId);
+  const pedidoDoc = await pedidoRef.get();
+
+  if (!pedidoDoc.exists) {
+    throw new AppError(
+      ERROR_CODES.ORDER_NOT_FOUND,
+      'Pedido no encontrado',
+      404
+    );
+  }
+
+  const pedido = pedidoDoc.data();
+
+  if (pedido.estado === 'Entregado') {
+    throw new AppError(
+      ERROR_CODES.ORDER_CANNOT_DELETE,
+      'No se puede eliminar un pedido ya entregado',
+      400
+    );
+  }
+
+  await pedidoRef.update({
+    activo: false,
+    fechaEliminacion: new Date(),
+    fechaActualizacion: new Date()
+  });
+
+  return {
+    id: pedidoId,
+    message: 'Pedido eliminado correctamente'
+  };
+};
+
 module.exports = {
   createNewOrder,
   getOrdersByClientId,
   getAllOrders,        
   getOrderById,        
-  updateOrderStatus
+  updateOrderStatus,
+  updateOrder,
+  softDeleteOrder
 };

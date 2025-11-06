@@ -17,9 +17,10 @@ const ERROR_MESSAGES = {
   [ERROR_CODES.ORDER_INVALID_SERVICE]: 'El servicio seleccionado no es válido.',
   [ERROR_CODES.ORDER_INVALID_PRICE_MODEL]: 'Error al calcular el precio del servicio.',
   [ERROR_CODES.ORDER_INVALID_STATE_TRANSITION]: 'No se puede cambiar el pedido a ese estado.',
-  [ERROR_CODES.ORDER_ALREADY_PAID]: 'Este pedido ya ha sido pagado.', // Reservado para uso futuro
-  [ERROR_CODES.ORDER_CANNOT_PAY]: 'Solo se pueden registrar pagos para pedidos en estado "Finalizado" o "Entregado".', // Reservado para uso futuro
+  [ERROR_CODES.ORDER_ALREADY_PAID]: 'Este pedido ya ha sido pagado.',
+  [ERROR_CODES.ORDER_CANNOT_PAY]: 'Solo se pueden registrar pagos para pedidos en estado "Finalizado" o "Entregado".',
   [ERROR_CODES.ORDER_UNAUTHORIZED_ACCESS]: 'No tienes permiso para ver este pedido.',
+  [ERROR_CODES.ORDER_CANNOT_DELETE]: 'No se puede eliminar este pedido.',
   
   // Servicios
   [ERROR_CODES.SERVICE_NOT_FOUND]: 'El servicio solicitado no existe.',

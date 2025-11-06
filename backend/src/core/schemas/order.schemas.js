@@ -7,6 +7,10 @@ const { campoFirebaseId, campoObservaciones } = require('./common.schemas');
 
 // Schema para crear un nuevo pedido
 const crearPedidoSchema = joi.object({
+  clienteId: campoFirebaseId.optional().messages({
+    'string.length': 'El ID del cliente no es válido.'
+  }),
+  
   servicioId: campoFirebaseId.messages({
     'string.empty': 'El ID del servicio es obligatorio.',
     'string.length': 'El ID del servicio no es válido.'
@@ -59,6 +63,38 @@ const actualizarEstadoPedidoSchema = joi.object({
   observaciones: campoObservaciones
 });
 
+// Schema para actualizar cualquier campo de un pedido (solo admin)
+const actualizarPedidoSchema = joi.object({
+  servicioId: campoFirebaseId.optional().messages({
+    'string.length': 'El ID del servicio no es válido.'
+  }),
+  
+  detalle: joi.alternatives().try(
+    joi.object().unknown(true),
+    joi.array().items(
+      joi.object({
+        opcionesSeleccionadas: joi.object().pattern(joi.string(), joi.string()).required(),
+        cantidad: joi.number().integer().min(1).required()
+      })
+    )
+  ).optional(),
+  
+  observaciones: campoObservaciones.allow('').optional(),
+  
+  estado: joi.string()
+    .valid('Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado')
+    .optional()
+    .messages({
+      'any.only': 'El estado debe ser: Pendiente, En Proceso, Finalizado, Entregado o Cancelado.'
+    }),
+  
+  precioEstimado: joi.number().min(0).optional().messages({
+    'number.min': 'El precio no puede ser negativo.'
+  })
+}).min(1).messages({
+  'object.min': 'Debe enviar al menos un campo para actualizar.'
+});
+
 // Schema para obtener pedido por ID (parámetro de ruta)
 const obtenerPedidoPorIdSchema = joi.object({
   id: campoFirebaseId.messages({
@@ -80,6 +116,7 @@ const filtrarPedidosPorEstadoSchema = joi.object({
 module.exports = {
   crearPedidoSchema,
   actualizarEstadoPedidoSchema,
+  actualizarPedidoSchema,
   obtenerPedidoPorIdSchema,
   filtrarPedidosPorEstadoSchema
 };

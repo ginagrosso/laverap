@@ -7,6 +7,7 @@ const { validate } = require('../middlewares/validate.middleware');
 const { 
   crearPedidoSchema,
   actualizarEstadoPedidoSchema,
+  actualizarPedidoSchema,
   obtenerPedidoPorIdSchema
 } = require('../../core/schemas/order.schemas');
 
@@ -44,6 +45,25 @@ router.get(
   validate(obtenerPedidoPorIdSchema, 'params'),
   chequearPropiedad('pedidos', 'clienteId'),
   orderController.getOrderById
+);
+
+// PATCH /api/v1/orders/:id -> Actualizar cualquier campo (solo admin)
+router.patch(
+  '/:id',
+  protect,
+  authorize('admin'),
+  validate(obtenerPedidoPorIdSchema, 'params'),
+  validate(actualizarPedidoSchema, 'body'),
+  orderController.updateOrder
+);
+
+// DELETE /api/v1/orders/:id -> Soft delete (solo admin)
+router.delete(
+  '/:id',
+  protect,
+  authorize('admin'),
+  validate(obtenerPedidoPorIdSchema, 'params'),
+  orderController.softDeleteOrder
 );
 
 // PATCH /api/v1/orders/:id/cancel -> Cliente cancela su pedido (solo si está Pendiente)
