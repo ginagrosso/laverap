@@ -3,10 +3,11 @@
 const express = require('express');
 require('./config/firebase.config.js');
 
-const authRoutes = require('./api/routes/auth.routes');// Importamos la configuración de Firebase
+const authRoutes = require('./api/routes/auth.routes');
 const userRoutes = require('./api/routes/user.routes');
 const serviceRoutes = require('./api/routes/service.routes');
 const orderRoutes = require('./api/routes/order.routes');
+const reportRoutes = require('./api/routes/report.routes');
 const errorHandler = require('./api/middlewares/error.handle.middleware');
 
 // Se crea la instancia de la aplicación Express
@@ -20,6 +21,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/servicios', serviceRoutes);
 app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/reports', reportRoutes);
 
 // Middleware para rutas no encontradas (404)
 app.use((req, res, next) => {
