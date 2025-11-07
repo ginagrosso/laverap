@@ -8,7 +8,8 @@ const {
   crearPedidoSchema,
   actualizarEstadoPedidoSchema,
   actualizarPedidoSchema,
-  obtenerPedidoPorIdSchema
+  obtenerPedidoPorIdSchema,
+  filtrosPedidosSchema
 } = require('../../core/schemas/order.schemas');
 
 /**
@@ -30,11 +31,12 @@ router.get(
   orderController.getMyOrders
 );
 
-// GET /api/v1/orders/all -> Obtener TODOS los pedidos (solo admin)
+// GET /api/v1/orders/all -> Obtener TODOS los pedidos con filtros (solo admin)
 router.get(
   '/all',
   protect,
-  authorize('admin'), // Solo usuarios con rol 'admin'
+  authorize('admin'),
+  validate(filtrosPedidosSchema, 'query'),
   orderController.getAllOrders
 );
 

@@ -30,6 +30,12 @@ const ERROR_MESSAGES = {
   // Usuarios
   [ERROR_CODES.USER_NOT_FOUND]: 'El usuario solicitado no existe.',
   [ERROR_CODES.USER_INACTIVE]: 'Esta cuenta ha sido desactivada.',
+  [ERROR_CODES.USER_EMAIL_EXISTS]: 'Ya existe un usuario con ese email.',
+  [ERROR_CODES.USER_CANNOT_DEACTIVATE_SELF]: 'No puedes desactivar tu propia cuenta.',
+  [ERROR_CODES.USER_CANNOT_DEMOTE_LAST_ADMIN]: 'No puedes cambiar el rol del último administrador.',
+  [ERROR_CODES.USER_HAS_ACTIVE_ORDERS]: 'No se puede eliminar un usuario con pedidos activos.',
+  [ERROR_CODES.USER_ALREADY_ACTIVE]: 'Este usuario ya está activo.',
+  [ERROR_CODES.USER_ALREADY_INACTIVE]: 'Este usuario ya está inactivo.',
   
   // Validación
   [ERROR_CODES.VALIDATION_ERROR]: 'Los datos enviados no son válidos.',

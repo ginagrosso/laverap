@@ -52,14 +52,28 @@ const getMyOrders = async (req, res, next) => {
   }
 };
 
-// Obtener TODOS los pedidos (solo admin)
+// Obtener TODOS los pedidos con filtros (solo admin)
 const getAllOrders = async (req, res, next) => {
   try {
-    const todosPedidos = await orderService.getAllOrders();
+    const filters = {
+      estado: req.query.estado,
+      clienteId: req.query.clienteId,
+      search: req.query.search,
+      page: parseInt(req.query.page) || 1,
+      limit: parseInt(req.query.limit) || 20
+    };
+    
+    const result = await orderService.getAllOrders(filters);
 
     res.status(200).json({
-      message: 'Todos los pedidos obtenidos exitosamente.',
-      data: todosPedidos
+      success: true,
+      data: result.orders,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages
+      }
     });
   } catch (error) {
     next(error);

@@ -32,6 +32,7 @@ const registerNewUser = async (userData) => {
     email, // Joi ya normalizó a minúsculas en el middleware
     password: hashedPassword,
     rol: rol || 'cliente', // Default a 'cliente'
+    activo: true,
     fechaCreacion: new Date(),
     ...(telefono && { telefono }), // Solo agregar si existe
     ...(direccion && { direccion }) // Solo agregar si existe

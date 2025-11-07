@@ -103,13 +103,43 @@ const obtenerPedidoPorIdSchema = joi.object({
   })
 });
 
-// Schema para filtrar pedidos por estado (query params)
-const filtrarPedidosPorEstadoSchema = joi.object({
+// Schema para filtrar pedidos (query params)
+const filtrosPedidosSchema = joi.object({
   estado: joi.string()
     .valid('Pendiente', 'En Proceso', 'Finalizado', 'Entregado', 'Cancelado')
     .optional()
     .messages({
       'any.only': 'El estado debe ser: Pendiente, En Proceso, Finalizado, Entregado o Cancelado.'
+    }),
+  clienteId: campoFirebaseId.optional().messages({
+    'string.length': 'El ID del cliente no es válido.'
+  }),
+  search: joi.string()
+    .trim()
+    .min(2)
+    .optional()
+    .messages({
+      'string.min': 'La búsqueda debe tener al menos 2 caracteres.'
+    }),
+  page: joi.number()
+    .integer()
+    .min(1)
+    .default(1)
+    .optional()
+    .messages({
+      'number.min': 'La página debe ser mayor o igual a 1.',
+      'number.base': 'La página debe ser un número.'
+    }),
+  limit: joi.number()
+    .integer()
+    .min(1)
+    .max(100)
+    .default(20)
+    .optional()
+    .messages({
+      'number.min': 'El límite debe ser mayor o igual a 1.',
+      'number.max': 'El límite no puede superar 100.',
+      'number.base': 'El límite debe ser un número.'
     })
 });
 
@@ -118,5 +148,5 @@ module.exports = {
   actualizarEstadoPedidoSchema,
   actualizarPedidoSchema,
   obtenerPedidoPorIdSchema,
-  filtrarPedidosPorEstadoSchema
+  filtrosPedidosSchema
 };

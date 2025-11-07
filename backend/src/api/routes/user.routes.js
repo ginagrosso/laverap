@@ -1,26 +1,81 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
-const { protect, authorize } = require('../middlewares/auth.middleware'); // <-- Importamos nuestro middleware
+const { protect, authorize } = require('../middlewares/auth.middleware');
 const { validate } = require('../middlewares/validate.middleware');
-const { actualizarPerfilSchema } = require('../../core/schemas/user.schemas');
+const { 
+  actualizarPerfilSchema, 
+  usuarioIdParamSchema,
+  filtrosUsuariosSchema,
+  crearUsuarioSchema,
+  cambiarRolSchema 
+} = require('../../core/schemas/user.schemas');
 
-// GET /api/v1/users/me
-// Esta ruta está protegida. Primero se ejecuta el middleware "protect"
-// y solo si el token es válido, se ejecutará "userController.getMe"
+// Usuario obtiene su propio perfil
 router.get('/me', protect, userController.getMe);
 
-// PATCH /api/v1/users/me - Actualizar perfil del usuario autenticado
+// Usuario actualiza su propio perfil
 router.patch('/me', 
   protect, 
   validate(actualizarPerfilSchema, 'body'), 
   userController.updateProfile
 );
 
-// --- NUEVA RUTA SOLO PARA ADMIN ---
-// Ruta para obtener todos los usuarios.
-// Primero se ejecuta 'protect' (para verificar el login)
-// Luego se ejecuta 'authorize' (para verificar que el rol sea 'admin')
-router.get('/', protect, authorize('admin'), userController.getUsers);
+// Admin lista todos los usuarios con filtros
+router.get('/', 
+  protect, 
+  authorize('admin'), 
+  validate(filtrosUsuariosSchema, 'query'),
+  userController.getUsers
+);
+
+// Admin crea nuevo usuario
+router.post('/',
+  protect,
+  authorize('admin'),
+  validate(crearUsuarioSchema, 'body'),
+  userController.createUser
+);
+
+// Admin obtiene usuario por ID
+router.get('/:id', 
+  protect, 
+  authorize('admin'), 
+  validate(usuarioIdParamSchema, 'params'),
+  userController.getUserById
+);
+
+// Admin cambia rol de usuario
+router.patch('/:id/role',
+  protect,
+  authorize('admin'),
+  validate(usuarioIdParamSchema, 'params'),
+  validate(cambiarRolSchema, 'body'),
+  userController.changeUserRole
+);
+
+// Admin desactiva usuario
+router.patch('/:id/desactivar',
+  protect,
+  authorize('admin'),
+  validate(usuarioIdParamSchema, 'params'),
+  userController.deactivateUser
+);
+
+// Admin reactiva usuario
+router.patch('/:id/activar',
+  protect,
+  authorize('admin'),
+  validate(usuarioIdParamSchema, 'params'),
+  userController.activateUser
+);
+
+// Admin elimina usuario permanentemente
+router.delete('/:id',
+  protect,
+  authorize('admin'),
+  validate(usuarioIdParamSchema, 'params'),
+  userController.deleteUser
+);
 
 module.exports = router;
