@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, LoginCredentials, RegisterData } from "@/types";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, setLogoutCallback } from "@/lib/api";
 import { toast } from "sonner";
 
 interface AuthContextType {
@@ -42,6 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setIsLoading(false);
+  }, []);
+
+  // Register logout callback with api.ts for automatic session termination on 401 errors
+  useEffect(() => {
+    setLogoutCallback(() => {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      toast.error("Tu sesión ha expirado. Por favor, iniciá sesión nuevamente.");
+    });
   }, []);
 
   const login = async (credentials: LoginCredentials) => {

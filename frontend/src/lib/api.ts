@@ -26,6 +26,17 @@ export class ApiError extends Error {
   }
 }
 
+// Global logout callback for automatic session termination on 401 errors
+let logoutCallback: (() => void) | null = null;
+
+/**
+ * Register logout callback to be called when token expires (401 error)
+ * Should be called from AuthContext on initialization
+ */
+export function setLogoutCallback(callback: () => void): void {
+  logoutCallback = callback;
+}
+
 interface RequestOptions extends RequestInit {
   token?: string;
 }
@@ -56,6 +67,11 @@ async function fetchApi<T>(
     // Backend error format: { success: false, error: { code, message, details? } }
     const errorMessage = data?.error?.message || data?.message || `Request failed with status ${response.status}`;
     const errorDetails = data?.error?.details;
+
+    // Automatic logout on 401 (token expired or invalid)
+    if (response.status === 401 && logoutCallback) {
+      logoutCallback();
+    }
 
     throw new ApiError(
       response.status,

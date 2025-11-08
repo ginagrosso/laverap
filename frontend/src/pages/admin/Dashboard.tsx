@@ -50,7 +50,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="py-8 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold">Panel de Administración</h1>
           <p className="text-lg opacity-90">Vista general del negocio</p>
         </div>

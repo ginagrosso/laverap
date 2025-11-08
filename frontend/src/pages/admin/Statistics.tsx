@@ -3,7 +3,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getRevenue, getPopularServices } from "@/lib/reports";
-import { Loader2 } from "lucide-react";
+import { Loader2, Home } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "react-router-dom";
 
 export default function Statistics() {
   const { token } = useAuth();
@@ -68,11 +77,33 @@ export default function Statistics() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="py-8 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 text-center">
           <h1 className="text-3xl font-bold">Estadísticas y Reportes</h1>
           <p className="text-lg opacity-90">Análisis de rendimiento del negocio</p>
         </div>
       </section>
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-background border-b">
+        <div className="container mx-auto px-4 py-3">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/admin/dashboard" className="flex items-center gap-1">
+                    <Home className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Estadísticas y Reportes</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>
 
       {/* Charts */}
       <section className="py-8">

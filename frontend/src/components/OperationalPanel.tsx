@@ -4,10 +4,10 @@ import { Button } from "./ui/button";
 import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { getAllOrders, updateOrderStatus } from "@/lib";
+import { getAllOrders, updateOrderStatus, getAllUsers } from "@/lib";
 import { Order, OrderStatus } from "@/types";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export const OperationalPanel = () => {
   const { token, hasRole } = useAuth();
@@ -28,6 +28,34 @@ export const OperationalPanel = () => {
 
   // Extract orders array from paginated response
   const orders = ordersResponse?.data || [];
+
+  // Fetch all users to map client IDs to names
+  const { data: usersResponse } = useQuery({
+    queryKey: ["all-users-for-panel"],
+    queryFn: async () => {
+      if (!token || !hasRole("admin")) {
+        return { success: true, data: [], pagination: { total: 0, page: 1, limit: 100, totalPages: 0 } };
+      }
+      return getAllUsers({ limit: 100 }, token);
+    },
+    enabled: !!token && hasRole("admin"),
+  });
+
+  // Create a map of clientId -> clientName for easy lookup
+  const clientNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (usersResponse?.data) {
+      usersResponse.data.forEach((user) => {
+        map.set(user.id, user.nombre);
+      });
+    }
+    return map;
+  }, [usersResponse]);
+
+  // Helper function to get client name or fallback to ID
+  const getClientName = (clienteId: string): string => {
+    return clientNameMap.get(clienteId) || clienteId;
+  };
 
   // Mutation to update order status
   const updateStatusMutation = useMutation({
@@ -118,7 +146,7 @@ export const OperationalPanel = () => {
               >
                 <p className="font-semibold text-sm">{order.id}</p>
                 <p className="text-xs text-muted-foreground">
-                  Cliente: {order.clienteId}
+                  Cliente: {getClientName(order.clienteId)}
                 </p>
                 <p className="text-xs">Servicio: {order.servicio.nombre}</p>
                 <p className="text-xs font-medium">${order.precioEstimado}</p>
