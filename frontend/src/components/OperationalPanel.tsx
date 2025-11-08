@@ -15,16 +15,19 @@ export const OperationalPanel = () => {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
 
   // Fetch all orders (for admins) or show demo for non-admins
-  const { data: orders = [], isLoading, error } = useQuery({
+  const { data: ordersResponse, isLoading, error } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: () => {
       if (!token || !hasRole("admin")) {
-        return [];
+        return { data: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } };
       }
-      return getAllOrders(token);
+      return getAllOrders({}, token); // Pass empty filters object
     },
     enabled: !!token && hasRole("admin"),
   });
+
+  // Extract orders array from paginated response
+  const orders = ordersResponse?.data || [];
 
   // Mutation to update order status
   const updateStatusMutation = useMutation({

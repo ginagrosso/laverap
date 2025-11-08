@@ -1,17 +1,51 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, TrendingUp, Clock, DollarSign } from "lucide-react";
+import { Package, TrendingUp, Clock, DollarSign, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-
-// TODO: Replace with actual API data
-const mockStats = {
-  pedidosHoy: 12,
-  ingresosMes: 45600,
-  tiempoPromedio: "36h",
-  pedidosPendientes: 8,
-};
+import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { getSummary, getRevenue } from "@/lib/reports";
 
 export default function Dashboard() {
+  const { token } = useAuth();
+
+  // Fetch summary statistics
+  const { data: summary, isLoading: summaryLoading, error: summaryError } = useQuery({
+    queryKey: ["reports", "summary"],
+    queryFn: () => {
+      if (!token) throw new Error("No token available");
+      return getSummary(token);
+    },
+    enabled: !!token,
+  });
+
+  // Fetch current month revenue
+  const today = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+    .toISOString().split('T')[0];
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+    .toISOString().split('T')[0];
+
+  const { data: revenue, isLoading: revenueLoading, error: revenueError } = useQuery({
+    queryKey: ["reports", "revenue", firstDay, lastDay],
+    queryFn: () => {
+      if (!token) throw new Error("No token available");
+      return getRevenue(firstDay, lastDay, token);
+    },
+    enabled: !!token,
+  });
+
+  const isLoading = summaryLoading || revenueLoading;
+  const hasError = summaryError || revenueError;
+
+  // Map API data to dashboard stats
+  const stats = {
+    pedidosHoy: summary?.totalPedidos || 0, // NOTE: Shows total orders, not filtered by today
+    ingresosMes: revenue?.ingresoTotal || 0,
+    tiempoPromedio: "N/A", // Not available from current API
+    pedidosPendientes: (summary?.pedidosPendientes || 0) + (summary?.pedidosEnProceso || 0),
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -25,19 +59,33 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <section className="py-8">
         <div className="container mx-auto px-4">
+          {hasError && (
+            <div className="bg-destructive/10 text-destructive p-4 rounded-lg mb-6">
+              Error al cargar las estadísticas. Por favor, intenta recargar la página.
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Pedidos Hoy
+                  Total Pedidos
                 </CardTitle>
                 <Package className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{mockStats.pedidosHoy}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  +2 desde ayer
-                </p>
+                {isLoading ? (
+                  <div className="text-3xl font-bold flex items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-3xl font-bold">{stats.pedidosHoy}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Registrados en el sistema
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -49,10 +97,18 @@ export default function Dashboard() {
                 <DollarSign className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">${mockStats.ingresosMes.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  +15% vs mes anterior
-                </p>
+                {isLoading ? (
+                  <div className="text-3xl font-bold flex items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-3xl font-bold">${stats.ingresosMes.toLocaleString()}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Mes actual
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -64,9 +120,9 @@ export default function Dashboard() {
                 <Clock className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{mockStats.tiempoPromedio}</div>
+                <div className="text-3xl font-bold">{stats.tiempoPromedio}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Por pedido completado
+                  Métrica no disponible
                 </p>
               </CardContent>
             </Card>
@@ -79,10 +135,18 @@ export default function Dashboard() {
                 <TrendingUp className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{mockStats.pedidosPendientes}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  En proceso o listos
-                </p>
+                {isLoading ? (
+                  <div className="text-3xl font-bold flex items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-3xl font-bold">{stats.pedidosPendientes}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Pendientes + En proceso
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

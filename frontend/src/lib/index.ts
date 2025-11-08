@@ -5,4 +5,5 @@ export * from "./orders";
 export * from "./users";
 export * from "./admin-orders";
 export * from "./admin-services";
+export * from "./reports";
 export { cn } from "./utils";
