@@ -1,6 +1,7 @@
 
 // Usamos require, el sistema de módulos clásico de Node.js
 const express = require('express');
+const cors = require('cors');
 require('./config/firebase.config.js');
 
 const authRoutes = require('./api/routes/auth.routes');
@@ -12,6 +13,33 @@ const errorHandler = require('./api/middlewares/error.handle.middleware');
 
 // Se crea la instancia de la aplicación Express
 const app = express();
+
+// Whitelist de orígenes permitidos
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173'];
+
+// Configuración CORS segura
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Permitir requests sin origin (Postman, cURL, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    // Verificar si el origin está en la whitelist
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`❌ CORS bloqueado: ${origin}`);
+      callback(new Error('No permitido por política CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400
+};
+
+app.use(cors(corsOptions));
 
 // Middleware para que Express pueda entender JSON
 app.use(express.json());
