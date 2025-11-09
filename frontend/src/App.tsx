@@ -10,7 +10,6 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 // Customer Pages
 import Home from "./pages/customer/Home";
 import Services from "./pages/customer/Services";
-import Pricing from "./pages/customer/Pricing";
 import CreateOrder from "./pages/customer/CreateOrder";
 import TrackOrder from "./pages/customer/TrackOrder";
 
@@ -41,7 +40,6 @@ const App = () => (
             {/* Public Customer Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/pricing" element={<Pricing />} />
 
             {/* Auth Routes */}
             <Route path="/login" element={<Login />} />

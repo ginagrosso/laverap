@@ -23,7 +23,6 @@ export function Navbar() {
   const customerLinks = [
     { to: "/", label: "Inicio" },
     { to: "/services", label: "Servicios" },
-    { to: "/pricing", label: "Precios" },
   ];
 
   const authenticatedLinks = [
