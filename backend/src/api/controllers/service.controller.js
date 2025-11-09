@@ -59,12 +59,40 @@ const updateService = async (req, res, next) => {
   }
 };
 
+// Obtiene todos los servicios incluyendo inactivos (admin only)
+const getAllServicesAdmin = async (req, res, next) => {
+  try {
+    const services = await serviceService.getAllServicesForAdmin();
+
+    res.status(200).json({
+      message: `Se encontraron ${services.length} servicios.`,
+      data: services
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Desactiva un servicio
 const deactivateService = async (req, res, next) => {
   try {
     const resultado = await serviceService.deactivateService(req.params.id);
-    
+
     res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Activa un servicio previamente desactivado
+const activateService = async (req, res, next) => {
+  try {
+    const servicioActivado = await serviceService.activateService(req.params.id);
+
+    res.status(200).json({
+      message: 'Servicio activado exitosamente.',
+      data: servicioActivado
+    });
   } catch (error) {
     next(error);
   }
@@ -72,8 +100,10 @@ const deactivateService = async (req, res, next) => {
 
 module.exports = {
   getServices,
+  getAllServicesAdmin,
   createService,
   getServiceById,
   updateService,
-  deactivateService
+  deactivateService,
+  activateService
 };

@@ -1,4 +1,5 @@
 const db = require('../../config/firebase.config');
+const admin = require('firebase-admin');
 const AppError = require('../errors/AppError');
 const ERROR_CODES = require('../errors/error.codes');
 
@@ -65,24 +66,77 @@ const updateService = async (servicioId, datosActualizados) => {
   return servicioActualizado;
 };
 
+// Obtiene todos los servicios (incluyendo inactivos) para admin
+const getAllServicesForAdmin = async () => {
+    const servicesRef = db.collection('servicios');
+    // Return ALL services without filtering for admin
+    const snapshot = await servicesRef.get();
+
+    if (snapshot.empty) {
+        return [];
+    }
+
+    const services = [];
+    snapshot.forEach(doc => {
+        services.push({ id: doc.id, ...doc.data() });
+    });
+
+    return services;
+};
+
 // Desactiva un servicio (soft delete)
 const deactivateService = async (servicioId) => {
   // Verifica que el servicio exista
-  await getServiceById(servicioId);
-  
+  const servicio = await getServiceById(servicioId);
+
+  // Verifica si ya está inactivo
+  if (servicio.activo === false) {
+    throw new AppError(
+      ERROR_CODES.SERVICE_ALREADY_INACTIVE,
+      'Este servicio ya está desactivado',
+      400
+    );
+  }
+
   // Marca como inactivo y guarda fecha
   await db.collection('servicios').doc(servicioId).update({
     activo: false,
     fechaDesactivacion: new Date().toISOString()
   });
-  
+
   return { message: 'Servicio desactivado exitosamente.' };
+};
+
+// Activa un servicio previamente desactivado
+const activateService = async (servicioId) => {
+  // Verifica que el servicio exista
+  const servicio = await getServiceById(servicioId);
+
+  // Verifica si ya está activo
+  const isActive = servicio.activo !== undefined ? servicio.activo : true;
+  if (isActive) {
+    throw new AppError(
+      ERROR_CODES.SERVICE_ALREADY_ACTIVE,
+      'Este servicio ya está activo',
+      400
+    );
+  }
+
+  // Marca como activo y elimina fecha de desactivación
+  await db.collection('servicios').doc(servicioId).update({
+    activo: true,
+    fechaDesactivacion: admin.firestore.FieldValue.delete()
+  });
+
+  return await getServiceById(servicioId);
 };
 
 module.exports = {
   getAllServices,
+  getAllServicesForAdmin,
   createService,
   getServiceById,
   updateService,
-  deactivateService
+  deactivateService,
+  activateService
 };

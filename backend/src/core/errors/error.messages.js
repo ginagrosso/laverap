@@ -26,6 +26,8 @@ const ERROR_MESSAGES = {
   [ERROR_CODES.SERVICE_NOT_FOUND]: 'El servicio solicitado no existe.',
   [ERROR_CODES.SERVICE_INACTIVE]: 'El servicio seleccionado no está disponible actualmente.',
   [ERROR_CODES.SERVICE_INVALID_MODEL]: 'El modelo de precio del servicio no es válido.',
+  [ERROR_CODES.SERVICE_ALREADY_ACTIVE]: 'Este servicio ya está activo.',
+  [ERROR_CODES.SERVICE_ALREADY_INACTIVE]: 'Este servicio ya está desactivado.',
   
   // Usuarios
   [ERROR_CODES.USER_NOT_FOUND]: 'El usuario solicitado no existe.',

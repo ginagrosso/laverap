@@ -65,7 +65,7 @@ export function mapServiceFormToApiRequest(formData: ServiceFormData): CreateSer
  */
 export async function getAllServices(token: string): Promise<Service[]> {
   try {
-    const response = await api.get<ServicesResponse>("/servicios", token);
+    const response = await api.get<ServicesResponse>("/servicios/all", token);
     return response.data;
   } catch (error) {
     console.error("Error fetching all services:", error);
@@ -150,6 +150,28 @@ export async function deactivateService(
     await api.delete<{ message: string }>(`/servicios/${id}`, token);
   } catch (error) {
     console.error(`Error deactivating service ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Activate a previously deactivated service (admin only)
+ * @param id - Service ID
+ * @param token - JWT authentication token (must be admin)
+ */
+export async function activateService(
+  id: string,
+  token: string
+): Promise<Service> {
+  try {
+    const response = await api.patch<ServiceResponse>(
+      `/servicios/${id}/activar`,
+      {},
+      token
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error activating service ${id}:`, error);
     throw error;
   }
 }

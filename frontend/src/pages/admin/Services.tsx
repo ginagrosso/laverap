@@ -6,6 +6,7 @@ import {
   createService,
   updateService,
   deactivateService,
+  activateService,
 } from "@/lib/admin-services";
 import { Service, ServiceFormData } from "@/types";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, Home, X } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, Home, X, CheckCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function Services() {
@@ -131,6 +132,18 @@ export default function Services() {
     },
     onError: (error: any) => {
       toast.error(error.message || "Error al desactivar el servicio");
+    },
+  });
+
+  // Activate mutation
+  const activateMutation = useMutation({
+    mutationFn: (id: string) => activateService(id, token!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-services"] });
+      toast.success("Servicio activado exitosamente");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Error al activar el servicio");
     },
   });
 
@@ -698,14 +711,25 @@ export default function Services() {
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => handleDelete(service)}
-                            disabled={service.activo === false}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {service.activo === false ? (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => activateMutation.mutate(service.id)}
+                              disabled={activateMutation.isPending}
+                            >
+                              <CheckCircle className="w-4 h-4 mr-1" />
+                              Activar
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDelete(service)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
