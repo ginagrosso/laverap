@@ -1,18 +1,43 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck } from "lucide-react";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck, Edit } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { getAllOrders, updateOrderStatus, getAllUsers } from "@/lib";
-import { Order, OrderStatus } from "@/types";
+import { getAllOrders, updateOrderStatus, updateOrder, getAllUsers, getServices } from "@/lib";
+import { Order, OrderStatus, Service, UpdateOrderRequest } from "@/types";
 import { toast } from "sonner";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 export const OperationalPanel = () => {
   const { token, hasRole } = useAuth();
   const queryClient = useQueryClient();
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  
+  // Edit modal states
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    servicioId: "",
+    cantidad: 1,
+    incluyePlanchado: false,
+    opcionSeleccionada: "",
+    opcionesMultiples: {} as Record<string, string>,
+    observaciones: "",
+    estado: "" as OrderStatus,
+  });
 
   // Fetch all orders (for admins) or show demo for non-admins
   const { data: ordersResponse, isLoading, error } = useQuery({
@@ -39,6 +64,13 @@ export const OperationalPanel = () => {
       return getAllUsers({ limit: 100 }, token);
     },
     enabled: !!token && hasRole("admin"),
+  });
+
+  // Fetch all active services for edit modal
+  const { data: services = [] } = useQuery({
+    queryKey: ["services"],
+    queryFn: getServices,
+    enabled: editModalOpen,
   });
 
   // Create a map of clientId -> clientName for easy lookup
@@ -74,6 +106,24 @@ export const OperationalPanel = () => {
     },
   });
 
+  // Mutation to update full order
+  const updateOrderMutation = useMutation({
+    mutationFn: ({ orderId, data }: { orderId: string; data: UpdateOrderRequest }) => {
+      if (!token) throw new Error("No token available");
+      return updateOrder(orderId, data, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast.success("Pedido actualizado exitosamente");
+      setEditModalOpen(false);
+      setOrderToEdit(null);
+    },
+    onError: (error: any) => {
+      console.error("Error updating order:", error);
+      toast.error(error.message || "Error al actualizar el pedido");
+    },
+  });
+
   // Group orders by status
   const ordersByStatus = {
     Pendiente: orders.filter((o) => o.estado === "Pendiente"),
@@ -86,6 +136,90 @@ export const OperationalPanel = () => {
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
     updateStatusMutation.mutate({ orderId, newStatus });
   };
+
+  // Handle opening edit modal
+  const handleOpenEditModal = (order: Order) => {
+    setOrderToEdit(order);
+    
+    // Pre-fill form with current order data
+    const detalle = order.detalle as any;
+    setEditFormData({
+      servicioId: order.servicio.id,
+      cantidad: detalle.cantidad || 1,
+      incluyePlanchado: detalle.incluyePlanchado || false,
+      opcionSeleccionada: detalle.opcion || detalle.opcionSeleccionada || "",
+      opcionesMultiples: detalle.opciones || {},
+      observaciones: order.observaciones || "",
+      estado: order.estado,
+    });
+    
+    setEditModalOpen(true);
+  };
+
+  // Handle save edit
+  const handleSaveEdit = () => {
+    if (!orderToEdit) return;
+
+    const selectedService = services.find((s) => s.id === editFormData.servicioId);
+    if (!selectedService) {
+      toast.error("Seleccioná un servicio válido");
+      return;
+    }
+
+    // Build detalle based on service pricing model
+    let detalle: any = { cantidad: editFormData.cantidad };
+
+    switch (selectedService.modeloDePrecio) {
+      case "paqueteConAdicional":
+        detalle.incluyePlanchado = editFormData.incluyePlanchado;
+        break;
+      case "porOpciones":
+        if (!editFormData.opcionSeleccionada) {
+          toast.error("Seleccioná una opción");
+          return;
+        }
+        detalle.opcion = editFormData.opcionSeleccionada;
+        break;
+      case "porOpcionesMultiples":
+        if (!selectedService.opciones) {
+          toast.error("Este servicio no tiene opciones configuradas");
+          return;
+        }
+        const categorias = Object.keys(selectedService.opciones);
+        for (const categoria of categorias) {
+          if (!editFormData.opcionesMultiples[categoria]) {
+            toast.error(`Seleccioná una opción para ${categoria}`);
+            return;
+          }
+        }
+        detalle.opciones = editFormData.opcionesMultiples;
+        break;
+    }
+
+    // Build update request
+    const updateData: UpdateOrderRequest = {
+      servicioId: editFormData.servicioId,
+      detalle,
+      observaciones: editFormData.observaciones.trim() || undefined,
+      estado: editFormData.estado,
+    };
+
+    updateOrderMutation.mutate({ orderId: orderToEdit.id, data: updateData });
+  };
+
+  // Reset form when service changes
+  useEffect(() => {
+    if (editFormData.servicioId && editModalOpen) {
+      setEditFormData(prev => ({
+        ...prev,
+        opcionSeleccionada: "",
+        opcionesMultiples: {},
+        incluyePlanchado: false,
+      }));
+    }
+  }, [editFormData.servicioId]);
+
+  const selectedServiceForEdit = services.find((s) => s.id === editFormData.servicioId);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -180,14 +314,25 @@ export const OperationalPanel = () => {
                 )}
 
                 {hasRole("admin") && selectedOrder !== order.id && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full mt-2 text-xs"
-                    onClick={() => setSelectedOrder(order.id)}
-                  >
-                    Cambiar estado
-                  </Button>
+                  <div className="mt-2 space-y-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full text-xs"
+                      onClick={() => setSelectedOrder(order.id)}
+                    >
+                      Cambiar estado
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full text-xs"
+                      onClick={() => handleOpenEditModal(order)}
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
+                      Editar pedido
+                    </Button>
+                  </div>
                 )}
               </div>
             ))
@@ -300,6 +445,227 @@ export const OperationalPanel = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Edit Order Modal */}
+        <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Editar Pedido</DialogTitle>
+              <DialogDescription>
+                Modificá cualquier campo del pedido. El precio se recalculará automáticamente.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              {/* Service Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-service">Servicio *</Label>
+                <Select
+                  value={editFormData.servicioId}
+                  onValueChange={(value) =>
+                    setEditFormData({ ...editFormData, servicioId: value })
+                  }
+                >
+                  <SelectTrigger id="edit-service">
+                    <SelectValue placeholder="Seleccioná un servicio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        {service.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Cantidad */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-cantidad">
+                  Cantidad *
+                  {selectedServiceForEdit?.modeloDePrecio === "paqueteConAdicional" &&
+                    " (paquetes)"}
+                </Label>
+                <Input
+                  id="edit-cantidad"
+                  type="number"
+                  min="1"
+                  value={editFormData.cantidad}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, cantidad: Number(e.target.value) })
+                  }
+                />
+              </div>
+
+              {/* Planchado option for paqueteConAdicional */}
+              {selectedServiceForEdit?.modeloDePrecio === "paqueteConAdicional" &&
+                selectedServiceForEdit.adicionales?.planchado && (
+                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
+                    <input
+                      type="checkbox"
+                      id="edit-planchado"
+                      checked={editFormData.incluyePlanchado}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          incluyePlanchado: e.target.checked,
+                        })
+                      }
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="edit-planchado" className="cursor-pointer">
+                      Incluir planchado (+${selectedServiceForEdit.adicionales.planchado} por
+                      paquete)
+                    </Label>
+                  </div>
+                )}
+
+              {/* Opción simple para porOpciones */}
+              {selectedServiceForEdit?.modeloDePrecio === "porOpciones" &&
+                selectedServiceForEdit.opciones && (
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-opcion">Seleccionar opción *</Label>
+                    <Select
+                      value={editFormData.opcionSeleccionada}
+                      onValueChange={(value) =>
+                        setEditFormData({ ...editFormData, opcionSeleccionada: value })
+                      }
+                    >
+                      <SelectTrigger id="edit-opcion">
+                        <SelectValue placeholder="Seleccioná una opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(selectedServiceForEdit.opciones).map(([key, value]) =>
+                          typeof value === "number" ? (
+                            <SelectItem key={key} value={key}>
+                              {key} - ${value}
+                            </SelectItem>
+                          ) : null
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+              {/* Opciones múltiples para porOpcionesMultiples */}
+              {selectedServiceForEdit?.modeloDePrecio === "porOpcionesMultiples" &&
+                selectedServiceForEdit.opciones && (
+                  <div className="space-y-4">
+                    {Object.entries(selectedServiceForEdit.opciones).map(
+                      ([categoria, opciones]) => {
+                        if (typeof opciones === "object" && !Array.isArray(opciones)) {
+                          return (
+                            <div key={categoria} className="space-y-2">
+                              <Label htmlFor={`edit-opcion-${categoria}`}>{categoria} *</Label>
+                              <Select
+                                value={editFormData.opcionesMultiples[categoria] || ""}
+                                onValueChange={(value) =>
+                                  setEditFormData({
+                                    ...editFormData,
+                                    opcionesMultiples: {
+                                      ...editFormData.opcionesMultiples,
+                                      [categoria]: value,
+                                    },
+                                  })
+                                }
+                              >
+                                <SelectTrigger id={`edit-opcion-${categoria}`}>
+                                  <SelectValue
+                                    placeholder={`Seleccioná ${categoria.toLowerCase()}`}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.entries(opciones).map(([opcion, precio]) => (
+                                    <SelectItem key={opcion} value={opcion}>
+                                      {opcion}{" "}
+                                      {typeof precio === "number" && precio > 0
+                                        ? `(+$${precio})`
+                                        : ""}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }
+                    )}
+                  </div>
+                )}
+
+              {/* Observaciones */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-observaciones">Observaciones</Label>
+                <Textarea
+                  id="edit-observaciones"
+                  placeholder="Ej: sin suavizante, prenda delicada..."
+                  value={editFormData.observaciones}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, observaciones: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              {/* Estado */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-estado">Estado *</Label>
+                <Select
+                  value={editFormData.estado}
+                  onValueChange={(value) =>
+                    setEditFormData({ ...editFormData, estado: value as OrderStatus })
+                  }
+                >
+                  <SelectTrigger id="edit-estado">
+                    <SelectValue placeholder="Seleccioná un estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(["Pendiente", "En Proceso", "Finalizado", "Entregado", "Cancelado"] as OrderStatus[]).map(
+                      (status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Current Price Display */}
+              {orderToEdit && (
+                <div className="bg-muted p-4 rounded-lg">
+                  <p className="text-sm text-muted-foreground">Precio actual estimado:</p>
+                  <p className="text-2xl font-bold">${orderToEdit.precioEstimado}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    El precio se recalculará si cambiás el servicio o el detalle
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditModalOpen(false)}
+                disabled={updateOrderMutation.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveEdit}
+                disabled={updateOrderMutation.isPending}
+              >
+                {updateOrderMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Guardar cambios
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
