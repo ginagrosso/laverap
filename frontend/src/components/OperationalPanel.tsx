@@ -13,10 +13,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck, Edit } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
+import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck, Edit, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { getAllOrders, updateOrderStatus, updateOrder, getAllUsers, getServices } from "@/lib";
+import { getAllOrders, updateOrderStatus, updateOrder, deleteOrder, getAllUsers, getServices } from "@/lib";
 import { Order, OrderStatus, Service, UpdateOrderRequest } from "@/types";
 import { toast } from "sonner";
 import { useState, useMemo, useEffect } from "react";
@@ -38,6 +48,10 @@ export const OperationalPanel = () => {
     observaciones: "",
     estado: "" as OrderStatus,
   });
+
+  // Delete modal states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
   // Fetch all orders (for admins) or show demo for non-admins
   const { data: ordersResponse, isLoading, error } = useQuery({
@@ -121,6 +135,25 @@ export const OperationalPanel = () => {
     onError: (error: any) => {
       console.error("Error updating order:", error);
       toast.error(error.message || "Error al actualizar el pedido");
+    },
+  });
+
+  // Mutation to delete order
+  const deleteOrderMutation = useMutation({
+    mutationFn: (orderId: string) => {
+      if (!token) throw new Error("No token available");
+      return deleteOrder(orderId, token);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast.success("Pedido eliminado exitosamente");
+      setDeleteDialogOpen(false);
+      setOrderToDelete(null);
+    },
+    onError: (error: any) => {
+      console.error("Error deleting order:", error);
+      const errorMessage = error.message || "Error al eliminar el pedido";
+      toast.error(errorMessage);
     },
   });
 
@@ -220,6 +253,22 @@ export const OperationalPanel = () => {
   }, [editFormData.servicioId]);
 
   const selectedServiceForEdit = services.find((s) => s.id === editFormData.servicioId);
+
+  // Handle opening delete dialog
+  const handleOpenDeleteDialog = (order: Order) => {
+    if (order.estado === "Entregado") {
+      toast.error("No se puede eliminar un pedido ya entregado");
+      return;
+    }
+    setOrderToDelete(order);
+    setDeleteDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleConfirmDelete = () => {
+    if (!orderToDelete) return;
+    deleteOrderMutation.mutate(orderToDelete.id);
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -331,6 +380,16 @@ export const OperationalPanel = () => {
                     >
                       <Edit className="w-3 h-3 mr-1" />
                       Editar pedido
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="w-full text-xs"
+                      onClick={() => handleOpenDeleteDialog(order)}
+                      disabled={order.estado === "Entregado"}
+                    >
+                      <Trash2 className="w-3 h-3 mr-1" />
+                      Eliminar pedido
                     </Button>
                   </div>
                 )}
@@ -666,6 +725,37 @@ export const OperationalPanel = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Order Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Eliminar pedido?</AlertDialogTitle>
+              <AlertDialogDescription>
+                <strong className="text-destructive">⚠️ Esta acción es irreversible.</strong>
+                <br />
+                <br />
+                El pedido <strong>{orderToDelete?.id}</strong> será eliminado permanentemente del
+                sistema. No se pueden eliminar pedidos que ya han sido entregados.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleteOrderMutation.isPending}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={deleteOrderMutation.isPending}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleteOrderMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Sí, eliminar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </section>
   );

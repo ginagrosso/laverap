@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, TrendingUp, Clock, DollarSign, Loader2 } from "lucide-react";
+import { Package, TrendingUp, Users, DollarSign, Loader2, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -42,8 +42,8 @@ export default function Dashboard() {
   const stats = {
     pedidosHoy: summary?.totalPedidos || 0, // NOTE: Shows total orders, not filtered by today
     ingresosMes: revenue?.ingresoTotal || 0,
-    tiempoPromedio: "N/A", // Not available from current API
     pedidosPendientes: (summary?.pedidosPendientes || 0) + (summary?.pedidosEnProceso || 0),
+    totalClientes: summary?.totalClientes || 0,
   };
 
   return (
@@ -115,15 +115,23 @@ export default function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Tiempo Promedio
+                  Total Clientes
                 </CardTitle>
-                <Clock className="w-4 h-4 text-muted-foreground" />
+                <Users className="w-4 h-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{stats.tiempoPromedio}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Métrica no disponible
-                </p>
+                {isLoading ? (
+                  <div className="text-3xl font-bold flex items-center gap-2">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-3xl font-bold">{stats.totalClientes}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Registrados en el sistema
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -152,7 +160,7 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Gestionar Pedidos</CardTitle>
@@ -163,6 +171,20 @@ export default function Dashboard() {
                 </p>
                 <Button asChild className="w-full">
                   <Link to="/admin/orders">Ir a Pedidos</Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle>Gestionar Usuarios</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Administrar clientes, roles y permisos del sistema
+                </p>
+                <Button asChild className="w-full">
+                  <Link to="/admin/users">Gestionar Usuarios</Link>
                 </Button>
               </CardContent>
             </Card>

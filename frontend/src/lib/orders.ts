@@ -52,19 +52,15 @@ export async function getMyOrders(token: string): Promise<Order[]> {
 /**
  * Cancel an order (customer only - must be in "Pendiente" status)
  * @param id - Order ID
- * @param observaciones - Optional reason for cancellation
  * @param token - JWT authentication token
+ * @param observaciones - Optional reason for cancellation
  * @returns Updated order with "Cancelado" status
  */
 export async function cancelOrder(
   id: string,
-  observaciones?: string,
-  token?: string
+  token: string,
+  observaciones?: string
 ): Promise<Order> {
-  if (!token) {
-    throw new Error("Token is required");
-  }
-
   try {
     const body: CancelOrderRequest = {};
     if (observaciones) body.observaciones = observaciones;
