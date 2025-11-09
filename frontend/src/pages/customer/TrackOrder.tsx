@@ -183,7 +183,7 @@ export default function TrackOrder() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <section className="py-12 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
@@ -195,7 +195,7 @@ export default function TrackOrder() {
       </section>
 
       {/* Orders List */}
-      <section className="py-12">
+      <section className="py-12 flex-1">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Loading State */}
           {isLoading && (
