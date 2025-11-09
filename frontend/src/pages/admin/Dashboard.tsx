@@ -161,12 +161,12 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <CardTitle>Gestionar Pedidos</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
+              <CardContent className="flex-1 flex flex-col">
+                <p className="text-muted-foreground mb-4 flex-1">
                   Actualizar estados, ver detalles y gestionar el flujo de trabajo
                 </p>
                 <Button asChild className="w-full">
@@ -175,12 +175,12 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <CardTitle>Gestionar Usuarios</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
+              <CardContent className="flex-1 flex flex-col">
+                <p className="text-muted-foreground mb-4 flex-1">
                   Administrar clientes, roles y permisos del sistema
                 </p>
                 <Button asChild className="w-full">
@@ -189,12 +189,12 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <CardTitle>Estadísticas</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
+              <CardContent className="flex-1 flex flex-col">
+                <p className="text-muted-foreground mb-4 flex-1">
                   Análisis detallado de rendimiento y métricas del negocio
                 </p>
                 <Button asChild className="w-full" variant="outline">
@@ -203,12 +203,12 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow flex flex-col">
               <CardHeader>
                 <CardTitle>Servicios</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
+              <CardContent className="flex-1 flex flex-col">
+                <p className="text-muted-foreground mb-4 flex-1">
                   Gestionar catálogo de servicios y precios
                 </p>
                 <Button asChild className="w-full" variant="outline">
