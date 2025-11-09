@@ -25,12 +25,12 @@ export function Navbar() {
     { to: "/services", label: "Servicios" },
   ];
 
+  const isAdminUser = hasRole("admin");
+
   const authenticatedLinks = [
     { to: "/order/new", label: "Crear Pedido" },
-    { to: "/order/track", label: "Mis Pedidos" },
+    { to: isAdminUser ? "/admin/orders" : "/order/track", label: "Mis Pedidos" },
   ];
-
-  const isAdminUser = hasRole("admin", "empleado", "dueño");
 
   return (
     <nav className="border-b bg-background sticky top-0 z-50">
@@ -107,12 +107,12 @@ export function Navbar() {
                       <div className="flex flex-col gap-1">
                         <p className="text-sm font-medium">{user?.nombre}</p>
                         <p className="text-xs text-muted-foreground">{user?.email}</p>
-                        <p className="text-xs text-muted-foreground">Rol: {user?.rol}</p>
+                        {/* <p className="text-xs text-muted-foreground">Rol: {user?.rol}</p> */}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/order/track">
+                      <Link to={isAdminUser ? "/admin/orders" : "/order/track"}>
                         <Package className="w-4 h-4 mr-2" />
                         Mis Pedidos
                       </Link>

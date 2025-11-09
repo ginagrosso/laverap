@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -9,23 +9,62 @@ import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Skeleton } from "./ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Combobox } from "./ui/combobox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Loader2, AlertCircle, Plus, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { getServices } from "@/lib/services";
 import { createOrder } from "@/lib/orders";
+import { getAllUsers, createUser } from "@/lib/users";
 import { useAuth } from "@/context/AuthContext";
-import { Service, CreateOrderRequest } from "@/types";
+import { Service, CreateOrderRequest, User, CreateUserRequest } from "@/types";
 
 export const CreateOrderForm = () => {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, hasRole } = useAuth();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isAdmin = hasRole("admin");
 
   // Fetch active services using React Query
   const { data: services = [], isLoading: isLoadingServices, error } = useQuery({
     queryKey: ["services"],
     queryFn: getServices,
   });
+
+  // Fetch users for admin (filtered to only clients)
+  const { data: usersResponse, isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["users", "cliente"],
+    queryFn: () => getAllUsers({ rol: "cliente", activo: true }, token!),
+    enabled: isAdmin && !!token,
+  });
+
+  const users = usersResponse?.data || [];
+
+  // Admin client selection state
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false);
+  const [newClientData, setNewClientData] = useState({
+    nombre: "",
+    email: "",
+    telefono: "",
+  });
+
+  // Password modal state
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [tempPasswordData, setTempPasswordData] = useState<{
+    clientName: string;
+    email: string;
+    password: string;
+  } | null>(null);
 
   // Form state
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
@@ -37,6 +76,58 @@ export const CreateOrderForm = () => {
 
   const selectedService = services.find((s) => s.id === selectedServiceId);
 
+  // Create client mutation
+  const createClientMutation = useMutation({
+    mutationFn: (data: CreateUserRequest) => createUser(data, token!),
+    onSuccess: (response) => {
+      // Refetch users to include the new client
+      queryClient.invalidateQueries({ queryKey: ["users", "cliente"] });
+
+      // Auto-select the new client
+      setSelectedClientId(response.data.usuario.id);
+
+      // Close modal and reset form
+      setIsCreateClientModalOpen(false);
+      setNewClientData({ nombre: "", email: "", telefono: "" });
+
+      // Save password data and open password modal
+      setTempPasswordData({
+        clientName: response.data.usuario.nombre,
+        email: response.data.usuario.email,
+        password: response.data.credenciales.password,
+      });
+      setPasswordModalOpen(true);
+    },
+    onError: (error: any) => {
+      toast.error("Error al crear cliente", {
+        description: error.message || "Por favor intentá nuevamente.",
+      });
+    },
+  });
+
+  const handleCreateClient = () => {
+    if (!newClientData.nombre.trim() || !newClientData.email.trim()) {
+      toast.error("Nombre y email son obligatorios");
+      return;
+    }
+
+    const requestData: CreateUserRequest = {
+      nombre: newClientData.nombre.trim(),
+      email: newClientData.email.trim(),
+      telefono: newClientData.telefono.trim() || undefined,
+      rol: "cliente",
+    };
+
+    createClientMutation.mutate(requestData);
+  };
+
+  const handleCopyPassword = async () => {
+    if (tempPasswordData?.password) {
+      await navigator.clipboard.writeText(tempPasswordData.password);
+      toast.success("Contraseña copiada al portapapeles");
+    }
+  };
+
   // Reset options when service changes
   useEffect(() => {
     setOpcionSeleccionada("");
@@ -47,6 +138,12 @@ export const CreateOrderForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate client selection for admins
+    if (isAdmin && !selectedClientId) {
+      toast.error("Por favor seleccioná un cliente");
+      return;
+    }
 
     if (!selectedServiceId) {
       toast.error("Por favor seleccioná un servicio");
@@ -101,15 +198,20 @@ export const CreateOrderForm = () => {
         observaciones: observaciones.trim() || null,
       };
 
+      // Include clienteId if admin is creating order for a client
+      if (isAdmin && selectedClientId) {
+        orderData.clienteId = selectedClientId;
+      }
+
       const order = await createOrder(orderData, token);
 
       toast.success("¡Pedido creado exitosamente!", {
         description: `Tu pedido ${order.id} ha sido registrado.`,
       });
 
-      // Redirect to track orders page
+      // Redirect based on user role
       setTimeout(() => {
-        navigate("/order/track");
+        navigate(isAdmin ? "/admin/orders" : "/order/track");
       }, 1500);
     } catch (err: any) {
       console.error("Error creating order:", err);
@@ -214,6 +316,170 @@ export const CreateOrderForm = () => {
             {/* Form */}
             {!isLoadingServices && !error && (
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Admin: Client Selection */}
+                {isAdmin && (
+                  <div className="space-y-2 p-4 border-2 border-primary/20 rounded-lg bg-primary/5">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <Label>Cliente *</Label>
+                      <Dialog open={isCreateClientModalOpen} onOpenChange={setIsCreateClientModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="gap-1"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Crear cliente rápido
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Crear nuevo cliente</DialogTitle>
+                            <DialogDescription>
+                              Se generará una contraseña temporal aleatoria que se mostrará solo una vez después de crear el cliente.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="new-client-nombre">Nombre completo *</Label>
+                              <Input
+                                id="new-client-nombre"
+                                value={newClientData.nombre}
+                                onChange={(e) =>
+                                  setNewClientData({ ...newClientData, nombre: e.target.value })
+                                }
+                                placeholder="Ej: Juan Pérez"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="new-client-email">Email *</Label>
+                              <Input
+                                id="new-client-email"
+                                type="email"
+                                value={newClientData.email}
+                                onChange={(e) =>
+                                  setNewClientData({ ...newClientData, email: e.target.value })
+                                }
+                                placeholder="ejemplo@correo.com"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="new-client-telefono">Teléfono (opcional)</Label>
+                              <Input
+                                id="new-client-telefono"
+                                type="tel"
+                                value={newClientData.telefono}
+                                onChange={(e) =>
+                                  setNewClientData({ ...newClientData, telefono: e.target.value })
+                                }
+                                placeholder="Ej: 3512345678"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setIsCreateClientModalOpen(false)}
+                              disabled={createClientMutation.isPending}
+                            >
+                              Cancelar
+                            </Button>
+                            <Button
+                              type="button"
+                              onClick={handleCreateClient}
+                              disabled={createClientMutation.isPending}
+                            >
+                              {createClientMutation.isPending && (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              )}
+                              Crear cliente
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+
+                      {/* Password Display Modal */}
+                      <Dialog open={passwordModalOpen} onOpenChange={setPasswordModalOpen}>
+                        <DialogContent className="sm:max-w-md">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl">¡Cliente creado exitosamente!</DialogTitle>
+                            <DialogDescription>
+                              Guardá esta contraseña temporal. Solo se mostrará una vez.
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="space-y-4 py-4">
+                            {/* Client Info */}
+                            <div className="space-y-2">
+                              <div className="text-sm text-muted-foreground">Cliente:</div>
+                              <div className="font-semibold text-lg">{tempPasswordData?.clientName}</div>
+                              <div className="text-sm text-muted-foreground">{tempPasswordData?.email}</div>
+                            </div>
+
+                            {/* Password Display */}
+                            <div className="space-y-2">
+                              <div className="text-sm font-medium">Contraseña temporal:</div>
+                              <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4 text-center">
+                                <code className="text-3xl font-mono font-bold text-gray-900 select-all">
+                                  {tempPasswordData?.password}
+                                </code>
+                              </div>
+                            </div>
+
+                            {/* Warning Alert */}
+                            <Alert variant="destructive">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                <strong>¡Importante!</strong> Esta contraseña solo se muestra una vez. 
+                                Copiala y compartila con el cliente de forma segura.
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+
+                          <DialogFooter className="flex-col sm:flex-row gap-2">
+                            <Button
+                              type="button"
+                              onClick={handleCopyPassword}
+                              className="w-full sm:flex-1 bg-green-600 hover:bg-green-700"
+                              size="lg"
+                            >
+                              <Copy className="mr-2 h-5 w-5" />
+                              Copiar contraseña
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setPasswordModalOpen(false)}
+                              className="w-full sm:flex-1"
+                              size="lg"
+                            >
+                              Cerrar
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    {isLoadingUsers ? (
+                      <Skeleton className="h-10 w-full" />
+                    ) : (
+                      <Combobox
+                        items={users.map((user) => ({
+                          value: user.id,
+                          label: `${user.nombre} (${user.email})`,
+                        }))}
+                        value={selectedClientId}
+                        onValueChange={setSelectedClientId}
+                        placeholder="Seleccioná un cliente..."
+                        searchPlaceholder="Buscar cliente..."
+                        emptyMessage="No se encontraron clientes."
+                        disabled={isSubmitting}
+                      />
+                    )}
+                  </div>
+                )}
+
                 {/* Service Selection */}
                 <div className="space-y-2">
                   <Label htmlFor="service">Servicio *</Label>
@@ -238,8 +504,6 @@ export const CreateOrderForm = () => {
                 <div className="space-y-2">
                   <Label htmlFor="cantidad">
                     Cantidad *{" "}
-                    {selectedService?.modeloDePrecio === "porCanasto" && "(prendas)"}
-                    {selectedService?.modeloDePrecio === "porUnidad" && "(unidades)"}
                     {selectedService?.modeloDePrecio === "paqueteConAdicional" && "(paquetes)"}
                   </Label>
                   <Input
