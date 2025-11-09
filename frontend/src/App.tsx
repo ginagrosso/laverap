@@ -22,6 +22,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Orders from "./pages/admin/Orders";
 import Statistics from "./pages/admin/Statistics";
 import AdminServices from "./pages/admin/Services";
+import Users from "./pages/admin/Users";
 
 // Fallback
 import NotFound from "./pages/NotFound";
@@ -67,7 +68,7 @@ const App = () => (
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["admin", "empleado", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -75,7 +76,7 @@ const App = () => (
             <Route
               path="/admin/orders"
               element={
-                <ProtectedRoute allowedRoles={["admin", "empleado", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Orders />
                 </ProtectedRoute>
               }
@@ -83,7 +84,7 @@ const App = () => (
             <Route
               path="/admin/services"
               element={
-                <ProtectedRoute allowedRoles={["admin", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <AdminServices />
                 </ProtectedRoute>
               }
@@ -91,8 +92,16 @@ const App = () => (
             <Route
               path="/admin/stats"
               element={
-                <ProtectedRoute allowedRoles={["admin", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Statistics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Users />
                 </ProtectedRoute>
               }
             />

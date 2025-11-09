@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Package, Users } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
@@ -118,12 +118,20 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     {isAdminUser && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Panel Admin
-                        </Link>
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard">
+                            <LayoutDashboard className="w-4 h-4 mr-2" />
+                            Panel Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/users">
+                            <Users className="w-4 h-4 mr-2" />
+                            Gestionar Usuarios
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>

@@ -4,18 +4,31 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Link } from "react-router-dom";
 import { Package, Clock, Loader2, CheckCircle, TruckIcon, AlertCircle, XCircle } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { getMyOrders } from "@/lib/orders";
+import { getMyOrders, cancelOrder } from "@/lib/orders";
 import { useAuth } from "@/context/AuthContext";
 import { Order } from "@/types";
+import { toast } from "sonner";
 
 const statusConfig = {
   "Pendiente": {
-    icon: Package,
+    icon: Clock,
     color: "bg-blue-500",
     textColor: "text-blue-700",
     bgColor: "bg-blue-50",
@@ -37,9 +50,9 @@ const statusConfig = {
   },
   "Entregado": {
     icon: TruckIcon,
-    color: "bg-purple-500",
-    textColor: "text-purple-700",
-    bgColor: "bg-purple-50",
+    color: "bg-slate-500",
+    textColor: "text-slate-700",
+    bgColor: "bg-slate-50",
     label: "Entregado",
   },
   "Cancelado": {
@@ -51,32 +64,47 @@ const statusConfig = {
   },
 };
 
-const formatDate = (date: Date | string | any) => {
+const formatDate = (date: Date | string | { seconds: number; nanoseconds: number } | { _seconds: number; _nanoseconds: number }) => {
   try {
-    // Handle Firestore Timestamp object (has _seconds property)
-    if (date && typeof date === 'object' && ('_seconds' in date || 'seconds' in date)) {
-      const seconds = date._seconds || date.seconds;
-      const milliseconds = seconds * 1000;
-      return format(new Date(milliseconds), "dd MMM yyyy", { locale: es });
+    if (!date) {
+      return "Fecha no disponible";
     }
 
-    // Handle Firestore Timestamp object (has toDate method)
-    if (date && typeof date === 'object' && 'toDate' in date && typeof date.toDate === 'function') {
-      return format(date.toDate(), "dd MMM yyyy", { locale: es });
-    }
-
-    // Handle Date object
     if (date instanceof Date) {
+      if (isNaN(date.getTime())) {
+        return "Fecha inválida";
+      }
       return format(date, "dd MMM yyyy", { locale: es });
     }
 
-    // Handle ISO string from backend
-    if (typeof date === 'string') {
-      return format(new Date(date), "dd MMM yyyy", { locale: es });
+    // Handle string dates
+    if (typeof date === "string") {
+      const parsedDate = new Date(date);
+      if (isNaN(parsedDate.getTime())) {
+        return "Fecha inválida";
+      }
+      return format(parsedDate, "dd MMM yyyy", { locale: es });
     }
 
-    // Fallback
-    return "Fecha inválida";
+    // Handle Firestore timestamp (with underscores - this is how it comes from API)
+    if (date && typeof date === "object" && "_seconds" in date) {
+      const parsedDate = new Date((date as any)._seconds * 1000);
+      if (isNaN(parsedDate.getTime())) {
+        return "Fecha inválida";
+      }
+      return format(parsedDate, "dd MMM yyyy", { locale: es });
+    }
+
+    // Handle Firestore timestamp (without underscores - alternative format)
+    if (date && typeof date === "object" && "seconds" in date) {
+      const parsedDate = new Date((date as any).seconds * 1000);
+      if (isNaN(parsedDate.getTime())) {
+        return "Fecha inválida";
+      }
+      return format(parsedDate, "dd MMM yyyy", { locale: es });
+    }
+
+    return "Fecha no disponible";
   } catch (error) {
     console.error("Error formatting date:", error, date);
     return "Fecha inválida";
@@ -84,10 +112,16 @@ const formatDate = (date: Date | string | any) => {
 };
 
 export default function TrackOrder() {
-  const { token, isAuthenticated, handleApiError } = useAuth();
+  const { token, isAuthenticated } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Cancel order states
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState<Order | null>(null);
+  const [cancelObservaciones, setCancelObservaciones] = useState("");
+  const [isCanceling, setIsCanceling] = useState(false);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -103,7 +137,6 @@ export default function TrackOrder() {
         setOrders(data);
       } catch (err) {
         console.error("Error fetching orders:", err);
-        handleApiError(err);
         setError("No pudimos cargar tus pedidos. Por favor, intentá nuevamente.");
       } finally {
         setIsLoading(false);
@@ -111,10 +144,46 @@ export default function TrackOrder() {
     };
 
     fetchOrders();
-  }, [token, isAuthenticated, handleApiError]);
+  }, [token, isAuthenticated]);
+
+  const handleOpenCancelDialog = (order: Order) => {
+    setOrderToCancel(order);
+    setCancelObservaciones("");
+    setCancelDialogOpen(true);
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderToCancel || !token) return;
+
+    try {
+      setIsCanceling(true);
+      await cancelOrder(orderToCancel.id, token, cancelObservaciones.trim() || undefined);
+      
+      toast.success("Pedido cancelado", {
+        description: `El pedido ${orderToCancel.id} ha sido cancelado exitosamente.`,
+      });
+
+      // Refetch orders
+      const data = await getMyOrders(token);
+      setOrders(data);
+
+      // Close dialog
+      setCancelDialogOpen(false);
+      setOrderToCancel(null);
+      setCancelObservaciones("");
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      const errorMessage = error instanceof Error ? error.message : "Por favor intentá nuevamente.";
+      toast.error("Error al cancelar el pedido", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsCanceling(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="py-12 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
@@ -126,7 +195,7 @@ export default function TrackOrder() {
       </section>
 
       {/* Orders List */}
-      <section className="py-12 flex-1">
+      <section className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Loading State */}
           {isLoading && (
@@ -183,7 +252,7 @@ export default function TrackOrder() {
           {!isLoading && !error && orders.length > 0 && (
             <div className="space-y-6">
               {orders.map((order) => {
-                const config = statusConfig[order.estado];
+                const config = statusConfig[order.estado] || statusConfig["Pendiente"];
                 const Icon = config.icon;
 
                 return (
@@ -236,77 +305,76 @@ export default function TrackOrder() {
                       )}
 
                       {/* Progress Bar */}
-                      {order.estado !== "Cancelado" && (
-                        <div className="mt-6">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">Progreso</span>
-                            <span className="text-sm text-muted-foreground">
-                              {order.estado === "Entregado" && "100%"}
-                              {order.estado === "Finalizado" && "75%"}
-                              {order.estado === "En Proceso" && "50%"}
-                              {order.estado === "Pendiente" && "25%"}
-                            </span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div
-                              className={`${config.color} h-2 rounded-full transition-all`}
-                              style={{
-                                width:
-                                  order.estado === "Entregado" ? "100%" :
-                                  order.estado === "Finalizado" ? "75%" :
-                                  order.estado === "En Proceso" ? "50%" :
-                                  "25%",
-                              }}
-                            />
-                          </div>
+                      <div className="mt-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Progreso</span>
+                          <span className="text-sm text-muted-foreground">
+                            {order.estado === "Entregado" && "100%"}
+                            {order.estado === "Finalizado" && "75%"}
+                            {order.estado === "En Proceso" && "50%"}
+                            {order.estado === "Pendiente" && "25%"}
+                            {order.estado === "Cancelado" && "0%"}
+                          </span>
                         </div>
-                      )}
-
-                      {/* Cancelled Message */}
-                      {order.estado === "Cancelado" && (
-                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                          <div className="flex items-center gap-2 text-red-700">
-                            <XCircle className="w-5 h-5" />
-                            <p className="font-semibold">Pedido Cancelado</p>
-                          </div>
-                          <p className="text-sm text-red-600 mt-1">
-                            Este pedido ha sido cancelado y no será procesado.
-                          </p>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div
+                            className={`${config.color} h-2 rounded-full transition-all`}
+                            style={{
+                              width:
+                                order.estado === "Entregado" ? "100%" :
+                                order.estado === "Finalizado" ? "75%" :
+                                order.estado === "En Proceso" ? "50%" :
+                                order.estado === "Pendiente" ? "25%" :
+                                "0%",
+                            }}
+                          />
                         </div>
-                      )}
+                      </div>
 
                       {/* Timeline */}
-                      {order.estado !== "Cancelado" && (
-                        <div className="mt-6 flex items-center justify-between text-xs">
-                          <div className="text-center">
-                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 bg-blue-500`} />
-                            <p className="text-muted-foreground">Pendiente</p>
-                          </div>
-                          <div className="flex-1 h-px bg-muted mx-2" />
-                          <div className="text-center">
-                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                              ["En Proceso", "Finalizado", "Entregado"].includes(order.estado)
-                                ? "bg-amber-500"
-                                : "bg-muted"
-                            }`} />
-                            <p className="text-muted-foreground">En Proceso</p>
-                          </div>
-                          <div className="flex-1 h-px bg-muted mx-2" />
-                          <div className="text-center">
-                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                              ["Finalizado", "Entregado"].includes(order.estado)
-                                ? "bg-green-500"
-                                : "bg-muted"
-                            }`} />
-                            <p className="text-muted-foreground">Finalizado</p>
-                          </div>
-                          <div className="flex-1 h-px bg-muted mx-2" />
-                          <div className="text-center">
-                            <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
-                              order.estado === "Entregado" ? "bg-purple-500" : "bg-muted"
-                            }`} />
-                            <p className="text-muted-foreground">Entregado</p>
-                          </div>
+                      <div className="mt-6 flex items-center justify-between text-xs">
+                        <div className="text-center">
+                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 bg-blue-500`} />
+                          <p className="text-muted-foreground">Pendiente</p>
+                        </div>
+                        <div className="flex-1 h-px bg-muted mx-2" />
+                        <div className="text-center">
+                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                            ["En Proceso", "Finalizado", "Entregado"].includes(order.estado)
+                              ? "bg-amber-500"
+                              : "bg-muted"
+                          }`} />
+                          <p className="text-muted-foreground">En Proceso</p>
+                        </div>
+                        <div className="flex-1 h-px bg-muted mx-2" />
+                        <div className="text-center">
+                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                            ["Finalizado", "Entregado"].includes(order.estado)
+                              ? "bg-green-500"
+                              : "bg-muted"
+                          }`} />
+                          <p className="text-muted-foreground">Finalizado</p>
+                        </div>
+                        <div className="flex-1 h-px bg-muted mx-2" />
+                        <div className="text-center">
+                          <div className={`w-3 h-3 rounded-full mx-auto mb-1 ${
+                            order.estado === "Entregado" ? "bg-slate-500" : "bg-muted"
+                          }`} />
+                          <p className="text-muted-foreground">Entregado</p>
+                        </div>
+                      </div>
+
+                      {/* Cancel Button */}
+                      {order.estado === "Pendiente" && (
+                        <div className="mt-6">
+                          <Button
+                            variant="destructive"
+                            className="w-full"
+                            onClick={() => handleOpenCancelDialog(order)}
+                          >
+                            <XCircle className="w-4 h-4 mr-2" />
+                            Cancelar Pedido
+                          </Button>
                         </div>
                       )}
                     </CardContent>
@@ -317,6 +385,47 @@ export default function TrackOrder() {
           )}
         </div>
       </section>
+
+      {/* Cancel Order Dialog */}
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Cancelar pedido?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción cancelará el pedido <strong>{orderToCancel?.id}</strong>. 
+              Solo se pueden cancelar pedidos que están en estado "Pendiente".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-2 py-4">
+            <Label htmlFor="cancel-observaciones">
+              Motivo de cancelación (opcional)
+            </Label>
+            <Textarea
+              id="cancel-observaciones"
+              placeholder="Ej: Ya no necesito el servicio, encontré otra opción, etc."
+              value={cancelObservaciones}
+              onChange={(e) => setCancelObservaciones(e.target.value)}
+              rows={3}
+              disabled={isCanceling}
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isCanceling}>
+              No, mantener pedido
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelOrder}
+              disabled={isCanceling}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isCanceling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sí, cancelar pedido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Footer />
     </div>
