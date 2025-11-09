@@ -1,6 +1,6 @@
 // Admin Services API module
 import { api } from "./api";
-import { Service, ServiceFormData } from "@/types";
+import { Service, ServiceFormData, CreateServiceRequest } from "@/types";
 
 // Backend response wrapper types
 interface ServicesResponse {
@@ -11,6 +11,52 @@ interface ServicesResponse {
 interface ServiceResponse {
   message: string;
   data: Service;
+}
+
+/**
+ * Maps ServiceFormData (nested structure) to CreateServiceRequest (flat structure)
+ * The form uses nested configuracionPrecios, but the backend expects flat fields
+ * @param formData - Service form data with nested structure
+ * @returns CreateServiceRequest with flat structure for backend
+ */
+export function mapServiceFormToApiRequest(formData: ServiceFormData): CreateServiceRequest {
+  const { nombre, descripcion, modeloDePrecio, configuracionPrecios } = formData;
+
+  const baseRequest: CreateServiceRequest = {
+    nombre,
+    descripcion,
+    modeloDePrecio,
+  };
+
+  // Flatten the nested configuracionPrecios based on pricing model
+  if (modeloDePrecio === "paqueteConAdicional") {
+    const config = configuracionPrecios as { precioBase: number; adicionales: Record<string, number> };
+    return {
+      ...baseRequest,
+      precioBase: config.precioBase,
+      adicionales: config.adicionales,
+    };
+  } else if (modeloDePrecio === "porOpciones") {
+    const config = configuracionPrecios as { opciones: Record<string, number> };
+    return {
+      ...baseRequest,
+      opciones: config.opciones,
+    };
+  } else if (modeloDePrecio === "porOpcionesMultiples") {
+    const config = configuracionPrecios as {
+      precioBase: number;
+      minimoUnidades: number;
+      opciones: Record<string, Record<string, number>>;
+    };
+    return {
+      ...baseRequest,
+      precioBase: config.precioBase,
+      minimoUnidades: config.minimoUnidades,
+      opciones: config.opciones,
+    };
+  }
+
+  return baseRequest;
 }
 
 /**
@@ -47,7 +93,7 @@ export async function getServiceById(
 
 /**
  * Create a new service (admin only)
- * @param data - Service form data
+ * @param data - Service form data (nested structure)
  * @param token - JWT authentication token (must be admin)
  */
 export async function createService(
@@ -55,7 +101,9 @@ export async function createService(
   token: string
 ): Promise<Service> {
   try {
-    const response = await api.post<ServiceResponse>("/servicios", data, token);
+    // Map nested form data to flat API request structure
+    const apiRequest = mapServiceFormToApiRequest(data);
+    const response = await api.post<ServiceResponse>("/servicios", apiRequest, token);
     return response.data;
   } catch (error) {
     console.error("Error creating service:", error);
@@ -66,7 +114,7 @@ export async function createService(
 /**
  * Update an existing service (admin only)
  * @param id - Service ID
- * @param data - Updated service form data
+ * @param data - Updated service form data (nested structure)
  * @param token - JWT authentication token (must be admin)
  */
 export async function updateService(
@@ -75,9 +123,11 @@ export async function updateService(
   token: string
 ): Promise<Service> {
   try {
+    // Map nested form data to flat API request structure
+    const apiRequest = mapServiceFormToApiRequest(data);
     const response = await api.put<ServiceResponse>(
       `/servicios/${id}`,
-      data,
+      apiRequest,
       token
     );
     return response.data;

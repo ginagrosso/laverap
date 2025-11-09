@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -18,10 +19,13 @@ import { Service, CreateOrderRequest } from "@/types";
 export const CreateOrderForm = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
-  const [services, setServices] = useState<Service[]>([]);
-  const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  // Fetch active services using React Query
+  const { data: services = [], isLoading: isLoadingServices, error } = useQuery({
+    queryKey: ["services"],
+    queryFn: getServices,
+  });
 
   // Form state
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
@@ -30,24 +34,6 @@ export const CreateOrderForm = () => {
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
   const [opcionesMultiples, setOpcionesMultiples] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState<string>("");
-
-  // Load services
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        setIsLoadingServices(true);
-        const data = await getServices();
-        setServices(data);
-      } catch (err) {
-        console.error("Error fetching services:", err);
-        setError("No pudimos cargar los servicios disponibles.");
-      } finally {
-        setIsLoadingServices(false);
-      }
-    };
-
-    fetchServices();
-  }, []);
 
   const selectedService = services.find((s) => s.id === selectedServiceId);
 
@@ -180,16 +166,8 @@ export const CreateOrderForm = () => {
         }
         break;
 
-      case "porCanasto":
-        total = Math.ceil(cantidad / (selectedService.itemsPorCanasto || 1)) * (selectedService.precioPorCanasto || 0);
-        break;
-
-      case "porUnidad":
-        total = cantidad * (selectedService.precioBase || 0);
-        break;
-
       default:
-        total = cantidad * (selectedService.precioBase || 100);
+        total = 0;
     }
 
     return total;
@@ -227,7 +205,9 @@ export const CreateOrderForm = () => {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  No pudimos cargar los servicios disponibles. Por favor, intentá recargar la página.
+                </AlertDescription>
               </Alert>
             )}
 
@@ -244,9 +224,7 @@ export const CreateOrderForm = () => {
                     <SelectContent>
                       {services.map((service) => (
                         <SelectItem key={service.id} value={service.id}>
-                          {service.nombre} - {service.modeloDePrecio === "porCanasto" && `$${service.precioPorCanasto}/canasto`}
-                          {service.modeloDePrecio === "porUnidad" && `$${service.precioBase}/unidad`}
-                          {service.modeloDePrecio === "paqueteConAdicional" && `$${service.precioBase} base`}
+                          {service.nombre}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -276,11 +254,6 @@ export const CreateOrderForm = () => {
                   {selectedService?.minimoUnidades && (
                     <p className="text-sm text-muted-foreground">
                       Mínimo: {selectedService.minimoUnidades} unidad(es)
-                    </p>
-                  )}
-                  {selectedService?.minimoItems && (
-                    <p className="text-sm text-muted-foreground">
-                      Mínimo: {selectedService.minimoItems} prendas
                     </p>
                   )}
                 </div>

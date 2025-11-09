@@ -181,7 +181,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow border-dashed">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Servicios</CardTitle>
               </CardHeader>
@@ -189,8 +189,8 @@ export default function Dashboard() {
                 <p className="text-muted-foreground mb-4">
                   Gestionar catálogo de servicios y precios
                 </p>
-                <Button className="w-full" variant="secondary" disabled>
-                  Próximamente
+                <Button asChild className="w-full" variant="outline">
+                  <Link to="/admin/services">Gestionar Servicios</Link>
                 </Button>
               </CardContent>
             </Card>

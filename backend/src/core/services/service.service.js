@@ -4,7 +4,8 @@ const ERROR_CODES = require('../errors/error.codes');
 
 const getAllServices = async () => {
     const servicesRef = db.collection('servicios');
-    const snapshot = await servicesRef.get();
+    // Filter only active services for public endpoint
+    const snapshot = await servicesRef.where('activo', '==', true).get();
 
     if (snapshot.empty) {
         return [];

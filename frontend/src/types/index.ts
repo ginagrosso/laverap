@@ -194,6 +194,17 @@ export interface PorOpcionesMultiplesConfig {
   opciones: Record<string, Record<string, number>>;
 }
 
+// Form data type for creating/editing services in admin panel (nested structure)
+export interface ServiceFormData {
+  nombre: string;
+  descripcion: string;
+  modeloDePrecio: PricingModel;
+  configuracionPrecios:
+    | PaqueteConAdicionalConfig
+    | PorOpcionesConfig
+    | PorOpcionesMultiplesConfig;
+}
+
 // ============================================================================
 // USER MANAGEMENT TYPES (ADMIN)
 // ============================================================================

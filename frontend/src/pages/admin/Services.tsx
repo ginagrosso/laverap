@@ -9,6 +9,15 @@ import {
 } from "@/lib/admin-services";
 import { Service, ServiceFormData } from "@/types";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import {
   Table,
   TableBody,
@@ -48,7 +57,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Plus, Edit, Trash2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, Home, X } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function Services() {
   const { token, hasRole } = useAuth();
@@ -66,6 +76,14 @@ export default function Services() {
     modeloDePrecio: "paqueteConAdicional",
     configuracionPrecios: { precioBase: 0, adicionales: {} },
   });
+
+  // Temporary arrays for key-value UI (user-friendly instead of JSON)
+  const [adicionalesArray, setAdicionalesArray] = useState<{ key: string; value: number }[]>([]);
+  const [opcionesArray, setOpcionesArray] = useState<{ key: string; value: number }[]>([]);
+  const [opcionesNestedArray, setOpcionesNestedArray] = useState<{
+    categoria: string;
+    opciones: { key: string; value: number }[];
+  }[]>([]);
 
   // Fetch all services
   const { data: services = [], isLoading } = useQuery({
@@ -116,6 +134,42 @@ export default function Services() {
     },
   });
 
+  // Helper functions to convert between objects and arrays for user-friendly UI
+  const objectToArray = (obj: Record<string, number>): { key: string; value: number }[] => {
+    return Object.entries(obj || {}).map(([key, value]) => ({ key, value }));
+  };
+
+  const arrayToObject = (arr: { key: string; value: number }[]): Record<string, number> => {
+    return arr
+      .filter((item) => item.key.trim() !== "") // Filter out empty keys
+      .reduce((acc, item) => ({ ...acc, [item.key]: item.value }), {});
+  };
+
+  const nestedObjectToArray = (
+    obj: Record<string, Record<string, number>>
+  ): { categoria: string; opciones: { key: string; value: number }[] }[] => {
+    return Object.entries(obj || {}).map(([categoria, opciones]) => ({
+      categoria,
+      opciones: Object.entries(opciones).map(([key, value]) => ({ key, value })),
+    }));
+  };
+
+  const arrayToNestedObject = (
+    arr: { categoria: string; opciones: { key: string; value: number }[] }[]
+  ): Record<string, Record<string, number>> => {
+    return arr
+      .filter((cat) => cat.categoria.trim() !== "") // Filter out empty categories
+      .reduce(
+        (acc, cat) => ({
+          ...acc,
+          [cat.categoria]: cat.opciones
+            .filter((op) => op.key.trim() !== "") // Filter out empty option keys
+            .reduce((opAcc, op) => ({ ...opAcc, [op.key]: op.value }), {}),
+        }),
+        {}
+      );
+  };
+
   const resetForm = () => {
     setFormData({
       nombre: "",
@@ -123,6 +177,9 @@ export default function Services() {
       modeloDePrecio: "paqueteConAdicional",
       configuracionPrecios: { precioBase: 0, adicionales: {} },
     });
+    setAdicionalesArray([]);
+    setOpcionesArray([]);
+    setOpcionesNestedArray([]);
     setEditingService(null);
   };
 
@@ -135,15 +192,22 @@ export default function Services() {
     setEditingService(service);
     // Map service to form data
     const config: any = {};
+
+    // Also initialize arrays for UI
     if (service.modeloDePrecio === "paqueteConAdicional") {
       config.precioBase = service.precioBase || 0;
       config.adicionales = service.adicionales || {};
+      setAdicionalesArray(objectToArray(service.adicionales || {}));
     } else if (service.modeloDePrecio === "porOpciones") {
       config.opciones = service.opciones || {};
+      setOpcionesArray(objectToArray((service.opciones as Record<string, number>) || {}));
     } else if (service.modeloDePrecio === "porOpcionesMultiples") {
       config.precioBase = service.precioBase || 0;
       config.minimoUnidades = service.minimoUnidades || 1;
-      config.opciones = service.opcionesDePrecio || {};
+      config.opciones = service.opciones || {};
+      setOpcionesNestedArray(
+        nestedObjectToArray((service.opciones as Record<string, Record<string, number>>) || {})
+      );
     }
 
     setFormData({
@@ -157,10 +221,25 @@ export default function Services() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Convert arrays back to objects before submitting
+    const finalFormData = { ...formData };
+    const config: any = { ...finalFormData.configuracionPrecios };
+
+    if (formData.modeloDePrecio === "paqueteConAdicional") {
+      config.adicionales = arrayToObject(adicionalesArray);
+    } else if (formData.modeloDePrecio === "porOpciones") {
+      config.opciones = arrayToObject(opcionesArray);
+    } else if (formData.modeloDePrecio === "porOpcionesMultiples") {
+      config.opciones = arrayToNestedObject(opcionesNestedArray);
+    }
+
+    finalFormData.configuracionPrecios = config;
+
     if (editingService) {
-      updateMutation.mutate({ id: editingService.id, data: formData });
+      updateMutation.mutate({ id: editingService.id, data: finalFormData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(finalFormData);
     }
   };
 
@@ -199,23 +278,64 @@ export default function Services() {
               }
             />
           </div>
-          <div>
-            <Label>Adicionales (key: valor)</Label>
-            <Textarea
-              placeholder='{"planchado": 50, "express": 100}'
-              value={JSON.stringify(config.adicionales || {}, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsed = JSON.parse(e.target.value);
-                  setFormData({
-                    ...formData,
-                    configuracionPrecios: { ...config, adicionales: parsed },
-                  });
-                } catch (err) {
-                  // Invalid JSON, ignore
-                }
-              }}
-            />
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Adicionales</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => setAdicionalesArray([...adicionalesArray, { key: "", value: 0 }])}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Agregar
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {adicionalesArray.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay adicionales. Haz clic en "Agregar" para añadir uno.
+                </p>
+              ) : (
+                adicionalesArray.map((item, index) => (
+                  <div key={index} className="flex gap-2 items-start">
+                    <div className="flex-1">
+                      <Input
+                        placeholder="Nombre (ej: planchado)"
+                        value={item.key}
+                        onChange={(e) => {
+                          const newArray = [...adicionalesArray];
+                          newArray[index].key = e.target.value;
+                          setAdicionalesArray(newArray);
+                        }}
+                      />
+                    </div>
+                    <div className="w-32">
+                      <Input
+                        type="number"
+                        placeholder="Precio"
+                        value={item.value}
+                        onChange={(e) => {
+                          const newArray = [...adicionalesArray];
+                          newArray[index].value = parseFloat(e.target.value) || 0;
+                          setAdicionalesArray(newArray);
+                        }}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setAdicionalesArray(adicionalesArray.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       );
@@ -224,23 +344,64 @@ export default function Services() {
     if (modeloDePrecio === "porOpciones") {
       const config = configuracionPrecios as any;
       return (
-        <div>
-          <Label>Opciones (key: valor)</Label>
-          <Textarea
-            placeholder='{"express": 100, "normal": 50}'
-            value={JSON.stringify(config.opciones || {}, null, 2)}
-            onChange={(e) => {
-              try {
-                const parsed = JSON.parse(e.target.value);
-                setFormData({
-                  ...formData,
-                  configuracionPrecios: { opciones: parsed },
-                });
-              } catch (err) {
-                // Invalid JSON, ignore
-              }
-            }}
-          />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Label>Opciones</Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => setOpcionesArray([...opcionesArray, { key: "", value: 0 }])}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Agregar
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {opcionesArray.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No hay opciones. Haz clic en "Agregar" para añadir una.
+              </p>
+            ) : (
+              opcionesArray.map((item, index) => (
+                <div key={index} className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Nombre (ej: express)"
+                      value={item.key}
+                      onChange={(e) => {
+                        const newArray = [...opcionesArray];
+                        newArray[index].key = e.target.value;
+                        setOpcionesArray(newArray);
+                      }}
+                    />
+                  </div>
+                  <div className="w-32">
+                    <Input
+                      type="number"
+                      placeholder="Precio"
+                      value={item.value}
+                      onChange={(e) => {
+                        const newArray = [...opcionesArray];
+                        newArray[index].value = parseFloat(e.target.value) || 0;
+                        setOpcionesArray(newArray);
+                      }}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => {
+                      setOpcionesArray(opcionesArray.filter((_, i) => i !== index));
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       );
     }
@@ -283,23 +444,125 @@ export default function Services() {
               }
             />
           </div>
-          <div>
-            <Label>Opciones (categoría: opciones)</Label>
-            <Textarea
-              placeholder='{"tamaño": {"grande": 50, "pequeño": 30}, "tipo": {"delicado": 20}}'
-              value={JSON.stringify(config.opciones || {}, null, 2)}
-              onChange={(e) => {
-                try {
-                  const parsed = JSON.parse(e.target.value);
-                  setFormData({
-                    ...formData,
-                    configuracionPrecios: { ...config, opciones: parsed },
-                  });
-                } catch (err) {
-                  // Invalid JSON, ignore
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Categorías de Opciones</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setOpcionesNestedArray([
+                    ...opcionesNestedArray,
+                    { categoria: "", opciones: [{ key: "", value: 0 }] },
+                  ])
                 }
-              }}
-            />
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Agregar Categoría
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {opcionesNestedArray.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No hay categorías. Haz clic en "Agregar Categoría" para añadir una.
+                </p>
+              ) : (
+                opcionesNestedArray.map((categoria, catIndex) => (
+                  <Card key={catIndex}>
+                    <CardHeader className="pb-3">
+                      <div className="flex gap-2 items-start">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Nombre de categoría (ej: tamaño)"
+                            value={categoria.categoria}
+                            onChange={(e) => {
+                              const newArray = [...opcionesNestedArray];
+                              newArray[catIndex].categoria = e.target.value;
+                              setOpcionesNestedArray(newArray);
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setOpcionesNestedArray(
+                              opcionesNestedArray.filter((_, i) => i !== catIndex)
+                            );
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm text-muted-foreground">Opciones</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            const newArray = [...opcionesNestedArray];
+                            newArray[catIndex].opciones.push({ key: "", value: 0 });
+                            setOpcionesNestedArray(newArray);
+                          }}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Opción
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {categoria.opciones.map((opcion, opIndex) => (
+                          <div key={opIndex} className="flex gap-2 items-start">
+                            <div className="flex-1">
+                              <Input
+                                placeholder="Nombre (ej: grande)"
+                                value={opcion.key}
+                                onChange={(e) => {
+                                  const newArray = [...opcionesNestedArray];
+                                  newArray[catIndex].opciones[opIndex].key = e.target.value;
+                                  setOpcionesNestedArray(newArray);
+                                }}
+                              />
+                            </div>
+                            <div className="w-28">
+                              <Input
+                                type="number"
+                                placeholder="Precio"
+                                value={opcion.value}
+                                onChange={(e) => {
+                                  const newArray = [...opcionesNestedArray];
+                                  newArray[catIndex].opciones[opIndex].value =
+                                    parseFloat(e.target.value) || 0;
+                                  setOpcionesNestedArray(newArray);
+                                }}
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                const newArray = [...opcionesNestedArray];
+                                newArray[catIndex].opciones = newArray[
+                                  catIndex
+                                ].opciones.filter((_, i) => i !== opIndex);
+                                setOpcionesNestedArray(newArray);
+                              }}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
           </div>
         </div>
       );
@@ -322,17 +585,43 @@ export default function Services() {
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="text-3xl">Gestión de Servicios</CardTitle>
-              <CardDescription>
-                Administra los servicios de lavandería disponibles
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <section className="py-8 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl font-bold">Gestión de Servicios</h1>
+          <p className="text-lg opacity-90">Administra los servicios de lavandería disponibles</p>
+        </div>
+      </section>
+
+      {/* Breadcrumb Navigation */}
+      <div className="bg-background border-b">
+        <div className="container mx-auto px-4 py-3">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/admin/dashboard" className="flex items-center gap-1">
+                    <Home className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Gestión de Servicios</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="container mx-auto py-8">
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => setShowInactive(!showInactive)}
@@ -427,6 +716,7 @@ export default function Services() {
           )}
         </CardContent>
       </Card>
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
