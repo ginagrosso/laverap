@@ -258,14 +258,14 @@ export default function TrackOrder() {
                 return (
                   <Card key={order.id} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col md:flex-row items-start md:justify-between gap-3">
                         <div>
-                          <CardTitle className="text-2xl">{order.id}</CardTitle>
+                          <CardTitle className="text-xl md:text-2xl">{order.id}</CardTitle>
                           <CardDescription className="text-base mt-1">
                             {order.servicio.nombre}
                           </CardDescription>
                         </div>
-                        <Badge className={`${config.color} text-white px-4 py-2`}>
+                        <Badge className={`${config.color} text-white px-3 py-1.5 md:px-4 md:py-2`}>
                           <Icon className="w-4 h-4 mr-2 inline" />
                           {config.label}
                         </Badge>
