@@ -53,6 +53,11 @@ export const OperationalPanel = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
 
+  // Filter states
+  const [dateRange, setDateRange] = useState<"7d" | "30d" | "90d" | "all">("30d");
+  const [showDelivered, setShowDelivered] = useState(false);
+  const [showCanceled, setShowCanceled] = useState(false);
+
   // Fetch all orders (for admins) or show demo for non-admins
   const { data: ordersResponse, isLoading, error } = useQuery({
     queryKey: ["admin-orders"],
@@ -67,6 +72,25 @@ export const OperationalPanel = () => {
 
   // Extract orders array from paginated response
   const orders = ordersResponse?.data || [];
+
+  // Filter orders by date range
+  const filteredOrders = useMemo(() => {
+    if (dateRange === "all") return orders;
+
+    const now = new Date();
+    const daysMap = { "7d": 7, "30d": 30, "90d": 90 };
+    const daysAgo = daysMap[dateRange];
+    const cutoffDate = new Date();
+    cutoffDate.setDate(now.getDate() - daysAgo);
+
+    return orders.filter((order) => {
+      // Handle Firestore timestamp format
+      const orderDate = order.fechaCreacion?._seconds
+        ? new Date(order.fechaCreacion._seconds * 1000)
+        : new Date(order.fechaCreacion);
+      return orderDate >= cutoffDate;
+    });
+  }, [orders, dateRange]);
 
   // Fetch all users to map client IDs to names
   const { data: usersResponse } = useQuery({
@@ -157,13 +181,13 @@ export const OperationalPanel = () => {
     },
   });
 
-  // Group orders by status
+  // Group orders by status (using filtered orders)
   const ordersByStatus = {
-    Pendiente: orders.filter((o) => o.estado === "Pendiente"),
-    "En Proceso": orders.filter((o) => o.estado === "En Proceso"),
-    Finalizado: orders.filter((o) => o.estado === "Finalizado"),
-    Entregado: orders.filter((o) => o.estado === "Entregado"),
-    Cancelado: orders.filter((o) => o.estado === "Cancelado"),
+    Pendiente: filteredOrders.filter((o) => o.estado === "Pendiente"),
+    "En Proceso": filteredOrders.filter((o) => o.estado === "En Proceso"),
+    Finalizado: filteredOrders.filter((o) => o.estado === "Finalizado"),
+    Entregado: filteredOrders.filter((o) => o.estado === "Entregado"),
+    Cancelado: filteredOrders.filter((o) => o.estado === "Cancelado"),
   };
 
   const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
@@ -450,12 +474,74 @@ export const OperationalPanel = () => {
           Gestión de pedidos en tiempo real
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        {/* Filter Controls */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              {/* Date Range Filter */}
+              <div className="flex items-center gap-2">
+                <Label htmlFor="date-range" className="whitespace-nowrap">
+                  Mostrar:
+                </Label>
+                <Select value={dateRange} onValueChange={(value: any) => setDateRange(value)}>
+                  <SelectTrigger id="date-range" className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7d">Últimos 7 días</SelectItem>
+                    <SelectItem value="30d">Últimos 30 días</SelectItem>
+                    <SelectItem value="90d">Últimos 90 días</SelectItem>
+                    <SelectItem value="all">Todos los pedidos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Column Toggles */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="show-delivered"
+                    checked={showDelivered}
+                    onChange={(e) => setShowDelivered(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <Label htmlFor="show-delivered" className="cursor-pointer text-sm">
+                    Mostrar Entregados
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="show-canceled"
+                    checked={showCanceled}
+                    onChange={(e) => setShowCanceled(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <Label htmlFor="show-canceled" className="cursor-pointer text-sm">
+                    Mostrar Cancelados
+                  </Label>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="text-sm text-muted-foreground">
+                Mostrando <strong>{filteredOrders.length}</strong> de <strong>{orders.length}</strong> pedidos
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className={`grid grid-cols-1 gap-4 mb-6 ${
+          showDelivered && showCanceled ? 'md:grid-cols-3 lg:grid-cols-5' :
+          showDelivered || showCanceled ? 'md:grid-cols-2 lg:grid-cols-4' :
+          'md:grid-cols-2 lg:grid-cols-3'
+        }`}>
           {renderStatusColumn("Pendiente", "Pendiente")}
           {renderStatusColumn("En Proceso", "En Proceso")}
           {renderStatusColumn("Finalizado", "Finalizado")}
-          {renderStatusColumn("Entregado", "Entregado")}
-          {renderStatusColumn("Cancelado", "Cancelado")}
+          {showDelivered && renderStatusColumn("Entregado", "Entregado")}
+          {showCanceled && renderStatusColumn("Cancelado", "Cancelado")}
         </div>
 
         {/* Summary Cards */}
@@ -495,9 +581,9 @@ export const OperationalPanel = () => {
               <div className="flex items-center gap-3">
                 <Archive className="w-8 h-8 text-slate-500" />
                 <div>
-                  <p className="font-semibold">Total Pedidos</p>
+                  <p className="font-semibold">Total Filtrados</p>
                   <p className="text-2xl font-bold text-slate-600">
-                    {orders.length}
+                    {filteredOrders.length}
                   </p>
                 </div>
               </div>
