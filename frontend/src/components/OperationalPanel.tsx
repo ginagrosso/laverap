@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck, Edit, Trash2 } from "lucide-react";
+import { Package, Loader2, CheckCircle, AlertCircle, Archive, Clock, Truck, Edit, Trash2, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { getAllOrders, updateOrderStatus, updateOrder, deleteOrder, getAllUsers, getServices } from "@/lib";
@@ -57,15 +57,28 @@ export const OperationalPanel = () => {
   const [dateRange, setDateRange] = useState<"7d" | "30d" | "90d" | "all">("30d");
   const [showDelivered, setShowDelivered] = useState(false);
   const [showCanceled, setShowCanceled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Fetch all orders (for admins) or show demo for non-admins
   const { data: ordersResponse, isLoading, error } = useQuery({
-    queryKey: ["admin-orders"],
+    queryKey: ["admin-orders", debouncedSearch],
     queryFn: () => {
       if (!token || !hasRole("admin")) {
         return { data: [], pagination: { total: 0, page: 1, limit: 20, totalPages: 0 } };
       }
-      return getAllOrders({}, token); // Pass empty filters object
+      return getAllOrders({
+        search: debouncedSearch.trim() || undefined
+      }, token);
     },
     enabled: !!token && hasRole("admin"),
   });
@@ -477,56 +490,88 @@ export const OperationalPanel = () => {
         {/* Filter Controls */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              {/* Date Range Filter */}
-              <div className="flex items-center gap-2">
-                <Label htmlFor="date-range" className="whitespace-nowrap">
-                  Mostrar:
-                </Label>
-                <Select value={dateRange} onValueChange={(value: any) => setDateRange(value)}>
-                  <SelectTrigger id="date-range" className="w-[180px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="7d">Últimos 7 días</SelectItem>
-                    <SelectItem value="30d">Últimos 30 días</SelectItem>
-                    <SelectItem value="90d">Últimos 90 días</SelectItem>
-                    <SelectItem value="all">Todos los pedidos</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-4">
+              {/* First Row: Search + Date Range */}
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                {/* Search Input */}
+                <div className="flex items-center gap-2 flex-1 w-full md:max-w-md">
+                  <Label htmlFor="search" className="whitespace-nowrap">
+                    Buscar:
+                  </Label>
+                  <div className="relative flex-1">
+                    <Input
+                      id="search"
+                      type="text"
+                      placeholder="Nombre o email del cliente..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    {searchTerm && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                        onClick={() => setSearchTerm("")}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Date Range Filter */}
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="date-range" className="whitespace-nowrap">
+                    Mostrar:
+                  </Label>
+                  <Select value={dateRange} onValueChange={(value: any) => setDateRange(value)}>
+                    <SelectTrigger id="date-range" className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7d">Últimos 7 días</SelectItem>
+                      <SelectItem value="30d">Últimos 30 días</SelectItem>
+                      <SelectItem value="90d">Últimos 90 días</SelectItem>
+                      <SelectItem value="all">Todos los pedidos</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Column Toggles */}
-              <div className="flex items-center gap-4">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="show-delivered"
-                    checked={showDelivered}
-                    onChange={(e) => setShowDelivered(e.target.checked)}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                  <Label htmlFor="show-delivered" className="cursor-pointer text-sm">
-                    Mostrar Entregados
-                  </Label>
+              {/* Second Row: Column Toggles + Summary */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                {/* Column Toggles */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="show-delivered"
+                      checked={showDelivered}
+                      onChange={(e) => setShowDelivered(e.target.checked)}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                    <Label htmlFor="show-delivered" className="cursor-pointer text-sm">
+                      Mostrar Entregados
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="show-canceled"
+                      checked={showCanceled}
+                      onChange={(e) => setShowCanceled(e.target.checked)}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                    <Label htmlFor="show-canceled" className="cursor-pointer text-sm">
+                      Mostrar Cancelados
+                    </Label>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="show-canceled"
-                    checked={showCanceled}
-                    onChange={(e) => setShowCanceled(e.target.checked)}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                  <Label htmlFor="show-canceled" className="cursor-pointer text-sm">
-                    Mostrar Cancelados
-                  </Label>
-                </div>
-              </div>
 
-              {/* Summary */}
-              <div className="text-sm text-muted-foreground">
-                Mostrando <strong>{filteredOrders.length}</strong> de <strong>{orders.length}</strong> pedidos
+                {/* Summary */}
+                <div className="text-sm text-muted-foreground">
+                  Mostrando <strong>{filteredOrders.length}</strong> de <strong>{orders.length}</strong> pedidos
+                </div>
               </div>
             </div>
           </CardContent>
