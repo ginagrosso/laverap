@@ -31,7 +31,7 @@ const calcularPrecio = (serviceData, detalle) => {
 
 /**
  * Calcula el precio para modelo "paqueteConAdicional"
- * Ejemplo: "Paquete 12 Prendas" - precioBase + adicionales opcionales (planchado)
+ * Ejemplo: "Paquete 12 Prendas" - (precioBase + adicionales opcionales) * cantidad
  */
 const calcularPrecioPaqueteConAdicional = (serviceData, detalle) => {
   // Iniciar con el precio base del servicio
@@ -43,14 +43,16 @@ const calcularPrecioPaqueteConAdicional = (serviceData, detalle) => {
       // Los adicionales en Firebase están en minúsculas (ej: "planchado")
       const adicionalKey = adicionalNombre.toLowerCase();
       const precioAdicional = serviceData.adicionales?.[adicionalKey];
-      
+
       if (precioAdicional !== undefined) {
         precioTotal += precioAdicional;
       }
     });
   }
 
-  return precioTotal;
+  // Multiplicar por cantidad (por defecto 1 si no se especifica)
+  const cantidad = detalle.cantidad || 1;
+  return precioTotal * cantidad;
 };
 
 /**

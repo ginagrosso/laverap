@@ -210,19 +210,33 @@ export const OperationalPanel = () => {
   // Handle opening edit modal
   const handleOpenEditModal = (order: Order) => {
     setOrderToEdit(order);
-    
+
     // Pre-fill form with current order data
     const detalle = order.detalle as any;
+    const selectedService = services.find(s => s.id === order.servicio.id);
+
+    // For porOpcionesMultiples, detalle is flat with category keys (e.g., {Tipo: "...", Tamaño: "..."})
+    // For other models, extract specific fields
+    let opcionesMultiples = {};
+    if (selectedService?.modeloDePrecio === "porOpcionesMultiples" && selectedService.opciones) {
+      const categorias = Object.keys(selectedService.opciones);
+      categorias.forEach(cat => {
+        if (detalle[cat]) {
+          opcionesMultiples[cat] = detalle[cat];
+        }
+      });
+    }
+
     setEditFormData({
       servicioId: order.servicio.id,
       cantidad: detalle.cantidad || 1,
       incluyePlanchado: detalle.incluyePlanchado || false,
       opcionSeleccionada: detalle.opcion || detalle.opcionSeleccionada || "",
-      opcionesMultiples: detalle.opciones || {},
+      opcionesMultiples,
       observaciones: order.observaciones || "",
       estado: order.estado,
     });
-    
+
     setEditModalOpen(true);
   };
 
@@ -237,18 +251,23 @@ export const OperationalPanel = () => {
     }
 
     // Build detalle based on service pricing model
-    let detalle: any = { cantidad: editFormData.cantidad };
+    let detalle: any = {};
 
     switch (selectedService.modeloDePrecio) {
       case "paqueteConAdicional":
-        detalle.incluyePlanchado = editFormData.incluyePlanchado;
+        detalle = {
+          cantidad: editFormData.cantidad,
+          incluyePlanchado: editFormData.incluyePlanchado,
+        };
         break;
       case "porOpciones":
         if (!editFormData.opcionSeleccionada) {
           toast.error("Seleccioná una opción");
           return;
         }
-        detalle.opcion = editFormData.opcionSeleccionada;
+        detalle = {
+          opcion: editFormData.opcionSeleccionada,
+        };
         break;
       case "porOpcionesMultiples":
         if (!selectedService.opciones) {
@@ -262,7 +281,8 @@ export const OperationalPanel = () => {
             return;
           }
         }
-        detalle.opciones = editFormData.opcionesMultiples;
+        // Spread options directly into detalle (flat structure, not nested)
+        detalle = { ...editFormData.opcionesMultiples };
         break;
     }
 
@@ -290,6 +310,59 @@ export const OperationalPanel = () => {
   }, [editFormData.servicioId]);
 
   const selectedServiceForEdit = services.find((s) => s.id === editFormData.servicioId);
+
+  // Calculate estimated price dynamically for edit modal
+  const calculateEditEstimatedPrice = () => {
+    if (!selectedServiceForEdit) return orderToEdit?.precioEstimado || 0;
+
+    let total = 0;
+
+    switch (selectedServiceForEdit.modeloDePrecio) {
+      case "paqueteConAdicional":
+        total = editFormData.cantidad * (selectedServiceForEdit.precioBase || 0);
+        if (editFormData.incluyePlanchado && selectedServiceForEdit.adicionales?.planchado) {
+          total += editFormData.cantidad * selectedServiceForEdit.adicionales.planchado;
+        }
+        break;
+
+      case "porOpciones":
+        if (editFormData.opcionSeleccionada && selectedServiceForEdit.opciones) {
+          const precioOpcion = selectedServiceForEdit.opciones[editFormData.opcionSeleccionada];
+          if (typeof precioOpcion === 'number') {
+            total = precioOpcion;
+          }
+        }
+        break;
+
+      case "porOpcionesMultiples":
+        if (selectedServiceForEdit.opciones) {
+          let precioCalculado = selectedServiceForEdit.precioBase || 0;
+          const categorias = Object.keys(selectedServiceForEdit.opciones);
+
+          for (const categoria of categorias) {
+            const seleccion = editFormData.opcionesMultiples[categoria];
+            if (seleccion) {
+              const opcionesCat = selectedServiceForEdit.opciones[categoria];
+              if (typeof opcionesCat === 'object' && !Array.isArray(opcionesCat)) {
+                const valorOpcion = opcionesCat[seleccion];
+                if (typeof valorOpcion === 'number') {
+                  precioCalculado += valorOpcion;
+                }
+              }
+            }
+          }
+          total = precioCalculado;
+        }
+        break;
+
+      default:
+        total = orderToEdit?.precioEstimado || 0;
+    }
+
+    return total;
+  };
+
+  const editEstimatedPrice = calculateEditEstimatedPrice();
 
   // Handle opening delete dialog
   const handleOpenDeleteDialog = (order: Order) => {
@@ -822,13 +895,47 @@ export const OperationalPanel = () => {
                 </Select>
               </div>
 
-              {/* Current Price Display */}
+              {/* Price Comparison Display */}
               {orderToEdit && (
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground">Precio actual estimado:</p>
-                  <p className="text-2xl font-bold">${orderToEdit.precioEstimado}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    El precio se recalculará si cambiás el servicio o el detalle
+                <div className="bg-accent/10 border-2 border-accent rounded-lg p-4 space-y-3">
+                  {editEstimatedPrice !== orderToEdit.precioEstimado ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Precio original:</span>
+                        <span className="text-lg font-semibold line-through text-muted-foreground">
+                          ${orderToEdit.precioEstimado}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-base font-semibold">Nuevo precio:</span>
+                        <span className="text-3xl font-bold text-accent">
+                          ${editEstimatedPrice}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-2 border-t border-accent/20">
+                        <span className="text-sm text-muted-foreground">Diferencia:</span>
+                        <span
+                          className={`text-sm font-bold ${
+                            editEstimatedPrice > orderToEdit.precioEstimado
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {editEstimatedPrice > orderToEdit.precioEstimado ? "+" : ""}
+                          ${(editEstimatedPrice - orderToEdit.precioEstimado).toFixed(0)}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between items-center">
+                      <span className="text-base font-semibold">Precio estimado:</span>
+                      <span className="text-3xl font-bold text-accent">
+                        ${editEstimatedPrice}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground pt-2 border-t border-accent/20">
+                    El precio final se confirmará al guardar los cambios
                   </p>
                 </div>
               )}
