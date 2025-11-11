@@ -6,7 +6,8 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
-    public data?: unknown
+    public data?: unknown,
+    public details?: string[]
   ) {
     super(message);
     this.name = "ApiError";
@@ -15,6 +16,25 @@ export class ApiError extends Error {
   isUnauthorized(): boolean {
     return this.status === 401;
   }
+
+  isForbidden(): boolean {
+    return this.status === 403;
+  }
+
+  getDetails(): string[] {
+    return this.details || [];
+  }
+}
+
+// Global logout callback for automatic session termination on 401 errors
+let logoutCallback: (() => void) | null = null;
+
+/**
+ * Register logout callback to be called when token expires (401 error)
+ * Should be called from AuthContext on initialization
+ */
+export function setLogoutCallback(callback: () => void): void {
+  logoutCallback = callback;
 }
 
 interface RequestOptions extends RequestInit {
@@ -44,10 +64,20 @@ async function fetchApi<T>(
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+    // Backend error format: { success: false, error: { code, message, details? } }
+    const errorMessage = data?.error?.message || data?.message || `Request failed with status ${response.status}`;
+    const errorDetails = data?.error?.details;
+
+    // Automatic logout on 401 (token expired or invalid)
+    if (response.status === 401 && logoutCallback) {
+      logoutCallback();
+    }
+
     throw new ApiError(
       response.status,
-      data?.message || `Request failed with status ${response.status}`,
-      data
+      errorMessage,
+      data,
+      errorDetails
     );
   }
 
@@ -65,6 +95,13 @@ export const api = {
       token,
     }),
 
+  put: <T>(endpoint: string, body: unknown, token?: string) =>
+    fetchApi<T>(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(body),
+      token,
+    }),
+
   patch: <T>(endpoint: string, body: unknown, token?: string) =>
     fetchApi<T>(endpoint, {
       method: "PATCH",
@@ -77,3 +114,28 @@ export const api = {
 };
 
 export { API_BASE_URL };
+
+/**
+ * Format API error for display to user
+ * Returns main message and optional detail list
+ */
+export function formatApiError(error: unknown): { message: string; details: string[] } {
+  if (error instanceof ApiError) {
+    return {
+      message: error.message,
+      details: error.getDetails(),
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      details: [],
+    };
+  }
+
+  return {
+    message: "An unexpected error occurred",
+    details: [],
+  };
+}

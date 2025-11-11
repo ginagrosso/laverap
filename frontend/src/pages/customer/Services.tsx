@@ -48,7 +48,7 @@ export default function Services() {
       {/* Header */}
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Nuestros Servicios</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Servicios y Precios</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">
             Ofrecemos una amplia gama de servicios de lavandería para satisfacer todas tus necesidades
           </p>
@@ -120,31 +120,10 @@ export default function Services() {
                     <CardContent>
                       <div className="space-y-2">
                         <Badge variant="secondary">
-                          {service.modeloDePrecio === "porCanasto" && "Por Canasto"}
-                          {service.modeloDePrecio === "porUnidad" && "Por Unidad"}
                           {service.modeloDePrecio === "paqueteConAdicional" && "Paquete"}
                           {service.modeloDePrecio === "porOpciones" && "Por Opción"}
                           {service.modeloDePrecio === "porOpcionesMultiples" && "Múltiples Opciones"}
                         </Badge>
-
-                        {service.modeloDePrecio === "porCanasto" && (
-                          <div className="text-sm text-muted-foreground">
-                            <p className="font-semibold text-lg text-foreground">
-                              ${service.precioPorCanasto} por canasto
-                            </p>
-                            <p>Hasta {service.itemsPorCanasto} prendas</p>
-                            <p>Mínimo: {service.minimoItems} prendas</p>
-                          </div>
-                        )}
-
-                        {service.modeloDePrecio === "porUnidad" && (
-                          <div className="text-sm text-muted-foreground">
-                            <p className="font-semibold text-lg text-foreground">
-                              Desde ${service.precioBase} por unidad
-                            </p>
-                            <p>Mínimo: {service.minimoUnidades} unidad(es)</p>
-                          </div>
-                        )}
 
                         {service.modeloDePrecio === "paqueteConAdicional" && (
                           <div className="text-sm text-muted-foreground">
@@ -170,6 +149,34 @@ export default function Services() {
                   </Card>
                 );
               })}
+            </div>
+          )}
+
+          {/* Pricing Explanation */}
+          {!isLoading && !error && services.length > 0 && (
+            <div className="mt-12 max-w-3xl mx-auto">
+              <Card className="bg-accent/10">
+                <CardHeader>
+                  <CardTitle>¿Cómo funciona el precio estimado?</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-muted-foreground">
+                  <p>
+                    • Al crear tu pedido, seleccionás el servicio y la cantidad de prendas
+                  </p>
+                  <p>
+                    • El sistema calcula automáticamente un precio estimado
+                  </p>
+                  <p>
+                    • Cuando dejás tu ropa en el local, confirmamos el peso/cantidad exacta
+                  </p>
+                  <p>
+                    • El precio final se ajusta si es necesario (siempre te informamos antes)
+                  </p>
+                  <p>
+                    • Pagás al retirar tu pedido (efectivo o transferencia)
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           )}
 

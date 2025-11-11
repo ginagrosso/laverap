@@ -2,25 +2,38 @@
 const admin = require('firebase-admin');
 const dotenv = require('dotenv');
 
-// Cargamos las variables de entorno para asegurarnos de que estén disponibles
+// Cargamos las variables de entorno
 dotenv.config();
 
-// Creamos un objeto con las credenciales, leyendo desde el .env
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Reemplaza los escapes de nueva línea
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-};
+// Validar variables de entorno requeridas
+const requiredEnvVars = ['FIREBASE_PROJECT_ID', 'FIREBASE_PRIVATE_KEY', 'FIREBASE_CLIENT_EMAIL'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
-// Inicializamos la aplicación de Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+if (missingVars.length > 0) {
+  throw new Error(`Variables de entorno faltantes: ${missingVars.join(', ')}`);
+}
 
-//Creamos una referencia a la base de datos de Firestore
+// Singleton pattern: evitar múltiples inicializaciones
+if (!admin.apps.length) {
+  // Crear objeto con las credenciales
+  const serviceAccount = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  };
+
+  // Inicializar Firebase Admin
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+
+  console.log('Firebase conectado correctamente.');
+} else {
+  console.log('Firebase ya estaba inicializado (reutilizando instancia).');
+}
+
+// Referencia a Firestore
 const db = admin.firestore();
 
-console.log('Firebase conectado correctamente.');
-
-// Exportamos la referencia a la base de datos para usarla en otras partes de la aplicación
+// Exportar la referencia
 module.exports = db;

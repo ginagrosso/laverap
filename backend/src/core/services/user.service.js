@@ -1,52 +1,85 @@
-const db = require('../../config/firebase.config'); // Importa la configuración de Firebase/Firestore
+const db = require('../../config/firebase.config');
+const admin = require('firebase-admin');
+const bcrypt = require('bcryptjs');
 
-/**
- * Servicio para gestionar usuarios
- * Contiene la lógica de negocio relacionada con operaciones de usuarios
- */
-
-/**
- * Obtiene todos los usuarios de la base de datos
- * @returns {Promise<Array>} - Lista de usuarios (sin contraseñas)
- */
-const getAllUsers = async () => {
-    try {
-        // Obtiene referencia a la colección 'clientes' en Firestore
-        const usersRef = db.collection('clientes');
-        
-        // Ejecuta la consulta para obtener todos los documentos
-        const snapshot = await usersRef.get();
-        
-        // Si no hay usuarios, retorna array vacío
-        if (snapshot.empty) {
-            return [];
-        }
-        
-        // Array para almacenar los usuarios procesados
-        const users = [];
-        
-        // Itera sobre cada documento en el snapshot
-        snapshot.forEach(doc => {
-            // Desestructura para excluir la contraseña del objeto
-            const { password, ...userData } = doc.data();
-            
-            // Agrega el usuario al array con su ID y datos (sin contraseña)
-            users.push({ id: doc.id, ...userData });
-        });
-        
-        return users; // Retorna la lista de usuarios
-    } catch (error) {
-        // Propaga el error con un mensaje más descriptivo
-        throw new Error(`Error al obtener usuarios: ${error.message}`);
-    }
+// Genera password temporal aleatoria de 8 caracteres alfanuméricos
+const generateTemporaryPassword = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
 };
 
-/**
- * Obtiene un usuario específico por su ID
- * @param {string} userId - ID único del usuario en Firebase
- * @returns {Promise<Object>} - Datos del usuario (sin contraseña)
- * @throws {Error} - Si el usuario no existe
- */
+// Obtiene todos los usuarios con filtros opcionales
+const getAllUsers = async (filters = {}) => {
+  try {
+    const { rol, activo, search, page = 1, limit = 20 } = filters;
+    
+    let usersRef = db.collection('clientes');
+    
+    // Filtro por rol
+    if (rol) {
+      usersRef = usersRef.where('rol', '==', rol);
+    }
+    
+    // Nota: No filtramos por 'activo' en Firestore para retrocompatibilidad
+    // Usuarios sin campo 'activo' se consideran activos por defecto
+    
+    const snapshot = await usersRef.get();
+    
+    if (snapshot.empty) {
+      return { users: [], total: 0, page, limit, totalPages: 0 };
+    }
+    
+    let users = [];
+    
+    snapshot.forEach(doc => {
+      const { password, ...userData } = doc.data();
+      // Asignar activo=true si el campo no existe (retrocompatibilidad)
+      const userWithDefaults = {
+        id: doc.id,
+        ...userData,
+        activo: userData.activo !== undefined ? userData.activo : true
+      };
+      users.push(userWithDefaults);
+    });
+    
+    // Filtro por activo en memoria (después de asignar defaults)
+    if (activo !== undefined) {
+      users = users.filter(user => user.activo === activo);
+    }
+    
+    // Filtro por búsqueda en nombre o email (case-insensitive)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      users = users.filter(user => 
+        user.nombre?.toLowerCase().includes(searchLower) ||
+        user.email?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    // Paginación
+    const total = users.length;
+    const totalPages = Math.ceil(total / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedUsers = users.slice(startIndex, endIndex);
+    
+    return {
+      users: paginatedUsers,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      totalPages
+    };
+  } catch (error) {
+    throw new Error(`Error al obtener usuarios: ${error.message}`);
+  }
+};
+
+// Obtiene un usuario específico por su ID
 const getUserById = async (userId) => {
   // Obtiene referencia al documento específico del usuario
     const userRef = db.collection('clientes').doc(userId);
@@ -73,32 +106,225 @@ const getUserById = async (userId) => {
  * @returns {Promise<Object>} - Usuario actualizado (sin contraseña)
  * @throws {Error} - Si el usuario no existe
  */
+// Usuario actualiza su propio perfil
 const updateUserProfile = async (userId, updateData) => {
-    // Obtiene referencia al documento del usuario
     const userRef = db.collection('clientes').doc(userId);
     const userDoc = await userRef.get();
 
-    // Verifica que el usuario existe antes de intentar actualizar
     if (!userDoc.exists) {
         throw new Error('Usuario no encontrado.');
     }
 
-    // Prepara los datos a actualizar, agregando fecha de modificación
     const dataToUpdate = {
-        ...updateData,  // Datos ya validados por middleware
-        fechaActualizacion: new Date()  // Timestamp de la actualización
+        ...updateData,
+        fechaActualizacion: new Date()
     };
 
-    // Actualiza el documento en Firestore
     await userRef.update(dataToUpdate);
 
-    // Obtiene y retorna el usuario actualizado (sin contraseña)
     return await getUserById(userId);
 };
 
-// Exporta todas las funciones del servicio para ser usadas en los controladores
+// Admin crea nuevo usuario con password temporal
+const createUser = async (userData) => {
+  const { nombre, email, telefono, direccion, rol } = userData;
+  
+  // Verificar si el email ya existe
+  const existingUser = await db.collection('clientes').where('email', '==', email.toLowerCase()).get();
+  if (!existingUser.empty) {
+    const error = new Error('Ya existe un usuario con ese email.');
+    error.code = 'USER_EMAIL_EXISTS';
+    throw error;
+  }
+  
+  // Generar password temporal
+  const temporaryPassword = generateTemporaryPassword();
+  const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+  
+  // Crear usuario
+  const newUser = {
+    nombre,
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    rol: rol || 'cliente',
+    activo: true,
+    passwordTemporal: true,
+    fechaCreacion: new Date(),
+    fechaActualizacion: new Date(),
+    ...(telefono && { telefono }),
+    ...(direccion && { direccion })
+  };
+  
+  const userDoc = await db.collection('clientes').add(newUser);
+  
+  // Retornar usuario con password sin hashear (solo esta vez)
+  const { password, ...userDataWithoutPassword } = newUser;
+  
+  return {
+    id: userDoc.id,
+    ...userDataWithoutPassword,
+    passwordGenerada: temporaryPassword
+  };
+};
+
+// Admin cambia rol de usuario
+const changeUserRole = async (userId, newRole) => {
+  const userRef = db.collection('clientes').doc(userId);
+  const userDoc = await userRef.get();
+  
+  if (!userDoc.exists) {
+    const error = new Error('Usuario no encontrado.');
+    error.code = 'USER_NOT_FOUND';
+    throw error;
+  }
+  
+  const currentUser = userDoc.data();
+  
+  // Si está cambiando de admin a cliente, validar que no sea el último admin
+  if (currentUser.rol === 'admin' && newRole === 'cliente') {
+    const adminsSnapshot = await db.collection('clientes')
+      .where('rol', '==', 'admin')
+      .where('activo', '==', true)
+      .get();
+    
+    // Contar admins activos (considerando usuarios sin campo activo como activos)
+    let activeAdminsCount = 0;
+    adminsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const isActive = data.activo !== undefined ? data.activo : true;
+      if (isActive) activeAdminsCount++;
+    });
+    
+    if (activeAdminsCount <= 1) {
+      const error = new Error('No puedes cambiar el rol del último administrador.');
+      error.code = 'USER_CANNOT_DEMOTE_LAST_ADMIN';
+      throw error;
+    }
+  }
+  
+  // Actualizar rol
+  await userRef.update({
+    rol: newRole,
+    fechaActualizacion: new Date()
+  });
+  
+  return await getUserById(userId);
+};
+
+// Admin desactiva usuario
+const deactivateUser = async (userId, adminId) => {
+  // Validar que no se desactive a sí mismo
+  if (userId === adminId) {
+    const error = new Error('No puedes desactivar tu propia cuenta.');
+    error.code = 'USER_CANNOT_DEACTIVATE_SELF';
+    throw error;
+  }
+  
+  const userRef = db.collection('clientes').doc(userId);
+  const userDoc = await userRef.get();
+  
+  if (!userDoc.exists) {
+    const error = new Error('Usuario no encontrado.');
+    error.code = 'USER_NOT_FOUND';
+    throw error;
+  }
+  
+  const userData = userDoc.data();
+  const isActive = userData.activo !== undefined ? userData.activo : true;
+  
+  if (!isActive) {
+    const error = new Error('Este usuario ya está inactivo.');
+    error.code = 'USER_ALREADY_INACTIVE';
+    throw error;
+  }
+  
+  // Desactivar usuario
+  await userRef.update({
+    activo: false,
+    fechaDesactivacion: new Date(),
+    fechaActualizacion: new Date()
+  });
+  
+  return await getUserById(userId);
+};
+
+// Admin reactiva usuario
+const activateUser = async (userId) => {
+  const userRef = db.collection('clientes').doc(userId);
+  const userDoc = await userRef.get();
+  
+  if (!userDoc.exists) {
+    const error = new Error('Usuario no encontrado.');
+    error.code = 'USER_NOT_FOUND';
+    throw error;
+  }
+  
+  const userData = userDoc.data();
+  const isActive = userData.activo !== undefined ? userData.activo : true;
+  
+  if (isActive) {
+    const error = new Error('Este usuario ya está activo.');
+    error.code = 'USER_ALREADY_ACTIVE';
+    throw error;
+  }
+  
+  // Reactivar usuario (eliminar campo fechaDesactivacion)
+  await userRef.update({
+    activo: true,
+    fechaDesactivacion: admin.firestore.FieldValue.delete(),
+    fechaActualizacion: new Date()
+  });
+  
+  return await getUserById(userId);
+};
+
+// Admin elimina usuario permanentemente
+const deleteUser = async (userId) => {
+  const userRef = db.collection('clientes').doc(userId);
+  const userDoc = await userRef.get();
+  
+  if (!userDoc.exists) {
+    const error = new Error('Usuario no encontrado.');
+    error.code = 'USER_NOT_FOUND';
+    throw error;
+  }
+  
+  // Validar que no tenga pedidos activos
+  const ordersSnapshot = await db.collection('pedidos')
+    .where('clienteId', '==', userId)
+    .where('activo', '==', true)
+    .get();
+  
+  if (!ordersSnapshot.empty) {
+    // Verificar si tiene pedidos en estados activos
+    let hasActiveOrders = false;
+    ordersSnapshot.forEach(doc => {
+      const order = doc.data();
+      if (['Pendiente', 'En Proceso', 'Finalizado'].includes(order.estado)) {
+        hasActiveOrders = true;
+      }
+    });
+    
+    if (hasActiveOrders) {
+      const error = new Error('No se puede eliminar un usuario con pedidos activos.');
+      error.code = 'USER_HAS_ACTIVE_ORDERS';
+      throw error;
+    }
+  }
+  
+  // Eliminar usuario permanentemente
+  await userRef.delete();
+  
+  return { id: userId, deleted: true };
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
-    updateUserProfile
+    updateUserProfile,
+    createUser,
+    changeUserRole,
+    deactivateUser,
+    activateUser,
+    deleteUser
 };

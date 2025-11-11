@@ -10,7 +10,6 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 // Customer Pages
 import Home from "./pages/customer/Home";
 import Services from "./pages/customer/Services";
-import Pricing from "./pages/customer/Pricing";
 import CreateOrder from "./pages/customer/CreateOrder";
 import TrackOrder from "./pages/customer/TrackOrder";
 
@@ -22,6 +21,8 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/admin/Dashboard";
 import Orders from "./pages/admin/Orders";
 import Statistics from "./pages/admin/Statistics";
+import AdminServices from "./pages/admin/Services";
+import Users from "./pages/admin/Users";
 
 // Fallback
 import NotFound from "./pages/NotFound";
@@ -40,7 +41,6 @@ const App = () => (
             {/* Public Customer Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
-            <Route path="/pricing" element={<Pricing />} />
 
             {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
@@ -68,7 +68,7 @@ const App = () => (
             <Route
               path="/admin/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["admin", "empleado", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -76,16 +76,32 @@ const App = () => (
             <Route
               path="/admin/orders"
               element={
-                <ProtectedRoute allowedRoles={["admin", "empleado", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/services"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminServices />
                 </ProtectedRoute>
               }
             />
             <Route
               path="/admin/stats"
               element={
-                <ProtectedRoute allowedRoles={["admin", "dueño"]}>
+                <ProtectedRoute allowedRoles={["admin"]}>
                   <Statistics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <Users />
                 </ProtectedRoute>
               }
             />

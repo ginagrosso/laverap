@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, LogOut, LayoutDashboard, Package } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Package, Users } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
@@ -23,15 +23,14 @@ export function Navbar() {
   const customerLinks = [
     { to: "/", label: "Inicio" },
     { to: "/services", label: "Servicios" },
-    { to: "/pricing", label: "Precios" },
   ];
+
+  const isAdminUser = hasRole("admin");
 
   const authenticatedLinks = [
     { to: "/order/new", label: "Crear Pedido" },
-    { to: "/order/track", label: "Mis Pedidos" },
+    { to: isAdminUser ? "/admin/orders" : "/order/track", label: "Mis Pedidos" },
   ];
-
-  const isAdminUser = hasRole("admin", "empleado", "dueño");
 
   return (
     <nav className="border-b bg-background sticky top-0 z-50">
@@ -108,23 +107,31 @@ export function Navbar() {
                       <div className="flex flex-col gap-1">
                         <p className="text-sm font-medium">{user?.nombre}</p>
                         <p className="text-xs text-muted-foreground">{user?.email}</p>
-                        <p className="text-xs text-muted-foreground">Rol: {user?.rol}</p>
+                        {/* <p className="text-xs text-muted-foreground">Rol: {user?.rol}</p> */}
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/order/track">
+                      <Link to={isAdminUser ? "/admin/orders" : "/order/track"}>
                         <Package className="w-4 h-4 mr-2" />
                         Mis Pedidos
                       </Link>
                     </DropdownMenuItem>
                     {isAdminUser && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Panel Admin
-                        </Link>
-                      </DropdownMenuItem>
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/dashboard">
+                            <LayoutDashboard className="w-4 h-4 mr-2" />
+                            Panel Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/users">
+                            <Users className="w-4 h-4 mr-2" />
+                            Gestionar Usuarios
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
                     )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={logout}>

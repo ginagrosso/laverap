@@ -10,16 +10,23 @@ const {
 
 // Rutas públicas
 router.get('/', serviceController.getServices);
-router.get('/:id', 
-  validate(obtenerServicioPorIdSchema, 'params'), 
+
+// Rutas admin - IMPORTANTE: /all debe ir antes de /:id para evitar conflictos
+router.get('/all',
+  protect,
+  authorize('admin'),
+  serviceController.getAllServicesAdmin
+);
+
+router.get('/:id',
+  validate(obtenerServicioPorIdSchema, 'params'),
   serviceController.getServiceById
 );
 
-// Rutas admin
-router.post('/', 
-  protect, 
-  authorize('admin'), 
-  validate(servicioSchema, 'body'), 
+router.post('/',
+  protect,
+  authorize('admin'),
+  validate(servicioSchema, 'body'),
   serviceController.createService
 );
 
@@ -31,11 +38,18 @@ router.put('/:id',
   serviceController.updateService
 );
 
-router.delete('/:id', 
-  protect, 
-  authorize('admin'), 
-  validate(obtenerServicioPorIdSchema, 'params'), 
+router.delete('/:id',
+  protect,
+  authorize('admin'),
+  validate(obtenerServicioPorIdSchema, 'params'),
   serviceController.deactivateService
+);
+
+router.patch('/:id/activar',
+  protect,
+  authorize('admin'),
+  validate(obtenerServicioPorIdSchema, 'params'),
+  serviceController.activateService
 );
 
 module.exports = router;
