@@ -32,15 +32,18 @@ export class ApiError extends Error {
 
   // Auth error helpers
   isEmailNotFound(): boolean {
-    return this.code === 'AUTH_003';
+    // Backend: AUTH_USER_NOT_FOUND -> 'AUTH_002'
+    return this.code === 'AUTH_002';
   }
 
   isInvalidPassword(): boolean {
-    return this.code === 'AUTH_004';
+    // Backend: AUTH_INVALID_PASSWORD -> 'AUTH_003'
+    return this.code === 'AUTH_003';
   }
 
   isEmailAlreadyExists(): boolean {
-    return this.code === 'AUTH_005' || this.code === 'USER_003';
+    // Backend: AUTH_EMAIL_EXISTS -> 'AUTH_004', USER_EMAIL_EXISTS -> 'USER_003'
+    return this.code === 'AUTH_004' || this.code === 'USER_003';
   }
 
   // Service error helpers

@@ -78,11 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Mostrar mensaje específico según el código de error
       if (error instanceof ApiError) {
-        if (error.isEmailNotFound()) {
+        // Prioridad 1: Errores de validación (ej: contraseña muy corta)
+        if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error(error.details[0]);
+        }
+        // Prioridad 2: Email no existe
+        else if (error.isEmailNotFound()) {
           toast.error("No existe una cuenta con ese email.");
-        } else if (error.isInvalidPassword()) {
+        }
+        // Prioridad 3: Contraseña incorrecta
+        else if (error.isInvalidPassword()) {
           toast.error("La contraseña es incorrecta.");
-        } else {
+        }
+        // Fallback: mensaje del backend
+        else {
           toast.error(error.message || "Error al iniciar sesión. Verificá tus credenciales.");
         }
       } else {
