@@ -76,14 +76,18 @@ const loginSchema = joi.object({
     .lowercase()
     .required()
     .messages({
-      'string.empty': 'El email es obligatorio.',
-      'string.email': 'El email debe ser válido.'
+      'string.empty': 'Por favor ingresá tu email.',
+      'string.email': 'El formato del email no es válido. Ejemplo: usuario@correo.com',
+      'any.required': 'El email es obligatorio para iniciar sesión.'
     }),
   
   password: joi.string()
+    .min(6)
     .required()
     .messages({
-      'string.empty': 'La contraseña es obligatoria.'
+      'string.empty': 'Por favor ingresá tu contraseña.',
+      'string.min': 'La contraseña debe tener al menos 6 caracteres.',
+      'any.required': 'La contraseña es obligatoria para iniciar sesión.'
     })
 });
 

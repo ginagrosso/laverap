@@ -11,6 +11,7 @@ import {
 import { Service, ServiceFormData } from "@/types";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { ApiError } from "@/lib/api";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -102,8 +103,24 @@ export default function Services() {
       resetForm();
       setShowDialog(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al crear el servicio");
+    onError: (error) => {
+      console.error("Error creating service:", error);
+      
+      if (error instanceof ApiError) {
+        if (error.isServiceNameAlreadyExists()) {
+          toast.error("Nombre duplicado", {
+            description: "Ya existe un servicio con ese nombre.",
+          });
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error("Error de validación", {
+            description: error.details[0],
+          });
+        } else {
+          toast.error(error.message || "Error al crear el servicio");
+        }
+      } else {
+        toast.error("Error al crear el servicio");
+      }
     },
   });
 
@@ -117,8 +134,26 @@ export default function Services() {
       resetForm();
       setShowDialog(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al actualizar el servicio");
+    onError: (error) => {
+      console.error("Error updating service:", error);
+      
+      if (error instanceof ApiError) {
+        if (error.isServiceNameAlreadyExists()) {
+          toast.error("Nombre duplicado", {
+            description: "Ya existe otro servicio con ese nombre.",
+          });
+        } else if (error.isServiceNotFound()) {
+          toast.error("Servicio no encontrado");
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error("Error de validación", {
+            description: error.details[0],
+          });
+        } else {
+          toast.error(error.message || "Error al actualizar el servicio");
+        }
+      } else {
+        toast.error("Error al actualizar el servicio");
+      }
     },
   });
 
@@ -130,8 +165,18 @@ export default function Services() {
       toast.success("Servicio desactivado");
       setDeleteConfirm(null);
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al desactivar el servicio");
+    onError: (error) => {
+      console.error("Error deactivating service:", error);
+      
+      if (error instanceof ApiError) {
+        if (error.isServiceNotFound()) {
+          toast.error("Servicio no encontrado");
+        } else {
+          toast.error(error.message || "Error al desactivar el servicio");
+        }
+      } else {
+        toast.error("Error al desactivar el servicio");
+      }
     },
   });
 
@@ -142,8 +187,18 @@ export default function Services() {
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
       toast.success("Servicio activado exitosamente");
     },
-    onError: (error: any) => {
-      toast.error(error.message || "Error al activar el servicio");
+    onError: (error) => {
+      console.error("Error activating service:", error);
+      
+      if (error instanceof ApiError) {
+        if (error.isServiceNotFound()) {
+          toast.error("Servicio no encontrado");
+        } else {
+          toast.error(error.message || "Error al activar el servicio");
+        }
+      } else {
+        toast.error("Error al activar el servicio");
+      }
     },
   });
 

@@ -29,6 +29,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getAllOrders, updateOrderStatus, updateOrder, deleteOrder, getAllUsers, getServices } from "@/lib";
 import { Order, OrderStatus, Service, UpdateOrderRequest } from "@/types";
 import { toast } from "sonner";
+import { ApiError } from "@/lib/api";
 import { useState, useMemo, useEffect } from "react";
 
 export const OperationalPanel = () => {
@@ -151,9 +152,22 @@ export const OperationalPanel = () => {
       toast.success("Estado del pedido actualizado");
       setSelectedOrder(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Error updating order status:", error);
-      toast.error(error.message || "Error al actualizar el estado del pedido");
+      
+      if (error instanceof ApiError) {
+        if (error.isOrderNotFound()) {
+          toast.error("Pedido no encontrado");
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error("Error de validación", {
+            description: error.details[0],
+          });
+        } else {
+          toast.error(error.message || "Error al actualizar el estado del pedido");
+        }
+      } else {
+        toast.error("Error al actualizar el estado del pedido");
+      }
     },
   });
 
@@ -169,9 +183,26 @@ export const OperationalPanel = () => {
       setEditModalOpen(false);
       setOrderToEdit(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Error updating order:", error);
-      toast.error(error.message || "Error al actualizar el pedido");
+      
+      if (error instanceof ApiError) {
+        if (error.isOrderNotFound()) {
+          toast.error("Pedido no encontrado");
+        } else if (error.isInvalidService()) {
+          toast.error("Servicio inválido", {
+            description: "El servicio seleccionado no existe o no está disponible.",
+          });
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error("Error de validación", {
+            description: error.details[0],
+          });
+        } else {
+          toast.error(error.message || "Error al actualizar el pedido");
+        }
+      } else {
+        toast.error("Error al actualizar el pedido");
+      }
     },
   });
 
@@ -187,10 +218,18 @@ export const OperationalPanel = () => {
       setDeleteDialogOpen(false);
       setOrderToDelete(null);
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Error deleting order:", error);
-      const errorMessage = error.message || "Error al eliminar el pedido";
-      toast.error(errorMessage);
+      
+      if (error instanceof ApiError) {
+        if (error.isOrderNotFound()) {
+          toast.error("Pedido no encontrado");
+        } else {
+          toast.error(error.message || "Error al eliminar el pedido");
+        }
+      } else {
+        toast.error("Error al eliminar el pedido");
+      }
     },
   });
 

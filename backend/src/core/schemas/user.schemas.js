@@ -23,10 +23,24 @@ const usuarioIdParamSchema = joi.object({
 
 // Schema para crear usuario (admin)
 const crearUsuarioSchema = joi.object({
-  nombre: campoNombre,
-  email: campoEmail,
-  telefono: campoTelefono,
-  direccion: campoDireccion,
+  nombre: campoNombre.messages({
+    'string.empty': 'El nombre del usuario es obligatorio.',
+    'string.min': 'El nombre debe tener al menos 2 caracteres.',
+    'string.max': 'El nombre no puede superar los 50 caracteres.',
+    'any.required': 'El nombre es obligatorio.'
+  }),
+  email: campoEmail.messages({
+    'string.empty': 'El email del usuario es obligatorio.',
+    'string.email': 'El formato del email no es válido. Ejemplo: usuario@correo.com',
+    'any.required': 'El email es obligatorio.'
+  }),
+  telefono: campoTelefono.messages({
+    'string.pattern.base': 'El teléfono debe tener entre 10 y 15 dígitos numéricos sin espacios ni guiones.'
+  }),
+  direccion: campoDireccion.messages({
+    'string.min': 'La dirección debe tener al menos 5 caracteres.',
+    'string.max': 'La dirección no puede superar los 200 caracteres.'
+  }),
   rol: joi.string()
     .valid('cliente', 'admin')
     .default('cliente')

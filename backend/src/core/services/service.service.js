@@ -22,6 +22,19 @@ const getAllServices = async () => {
 
 // Crea un nuevo servicio
 const createService = async (datosServicio) => {
+  // Verificar si ya existe un servicio con el mismo nombre
+  const existingService = await db.collection('servicios')
+    .where('nombre', '==', datosServicio.nombre)
+    .get();
+  
+  if (!existingService.empty) {
+    throw new AppError(
+      ERROR_CODES.SERVICE_NAME_ALREADY_EXISTS,
+      'Ya existe un servicio con ese nombre.',
+      400
+    );
+  }
+  
   // Agrega el servicio a Firestore
   const nuevoServicioRef = await db.collection('servicios').add({
     ...datosServicio,
@@ -57,6 +70,25 @@ const getServiceById = async (servicioId) => {
 const updateService = async (servicioId, datosActualizados) => {
   // Verifica que el servicio exista
   await getServiceById(servicioId);
+  
+  // Si se está actualizando el nombre, verificar que no exista otro servicio con ese nombre
+  if (datosActualizados.nombre) {
+    const existingService = await db.collection('servicios')
+      .where('nombre', '==', datosActualizados.nombre)
+      .get();
+    
+    // Si existe otro servicio con ese nombre (que no sea el actual)
+    if (!existingService.empty) {
+      const existingServiceId = existingService.docs[0].id;
+      if (existingServiceId !== servicioId) {
+        throw new AppError(
+          ERROR_CODES.SERVICE_NAME_ALREADY_EXISTS,
+          'Ya existe un servicio con ese nombre.',
+          400
+        );
+      }
+    }
+  }
   
   // Actualiza el servicio
   await db.collection('servicios').doc(servicioId).update(datosActualizados);

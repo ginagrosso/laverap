@@ -11,13 +11,14 @@ const servicioSchema = joi.object({
   
   descripcion: joi.string()
     .trim()
-    .min(10)
+    .min(3)
     .max(500)
     .required()
     .messages({
       'string.empty': 'La descripción del servicio es obligatoria.',
-      'string.min': 'La descripción debe tener al menos 10 caracteres.',
-      'string.max': 'La descripción no puede superar los 500 caracteres.'
+      'string.min': 'La descripción debe tener al menos 3 caracteres.',
+      'string.max': 'La descripción no puede superar los 500 caracteres.',
+      'any.required': 'La descripción del servicio es obligatoria.'
     }),
   
   modeloDePrecio: joi.string()

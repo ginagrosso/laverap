@@ -25,9 +25,9 @@ const createNewOrder = async (orderData, clienteId) => {
   
   if (!serviceDoc.exists) {
     throw new AppError(
-      ERROR_CODES.SERVICE_NOT_FOUND,
-      'El servicio seleccionado no existe',
-      404
+      ERROR_CODES.ORDER_INVALID_SERVICE,
+      'El servicio seleccionado no existe.',
+      400
     );
   }
 
@@ -286,9 +286,9 @@ const updateOrder = async (pedidoId, datosActualizacion) => {
     const serviceDoc = await db.collection('servicios').doc(datosActualizacion.servicioId).get();
     if (!serviceDoc.exists) {
       throw new AppError(
-        ERROR_CODES.SERVICE_NOT_FOUND,
-        'Servicio no encontrado',
-        404
+        ERROR_CODES.ORDER_INVALID_SERVICE,
+        'El servicio seleccionado no existe.',
+        400
       );
     }
     

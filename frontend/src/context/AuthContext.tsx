@@ -75,7 +75,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success(`¡Bienvenido, ${usuario.nombre}!`);
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Error al iniciar sesión. Verificá tus credenciales.");
+      
+      // Mostrar mensaje específico según el código de error
+      if (error instanceof ApiError) {
+        if (error.isEmailNotFound()) {
+          toast.error("No existe una cuenta con ese email.");
+        } else if (error.isInvalidPassword()) {
+          toast.error("La contraseña es incorrecta.");
+        } else {
+          toast.error(error.message || "Error al iniciar sesión. Verificá tus credenciales.");
+        }
+      } else {
+        toast.error("Error al iniciar sesión. Verificá tus credenciales.");
+      }
+      
       throw error;
     }
   };
@@ -95,7 +108,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await login({ email: data.email, password: data.password });
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Error al crear la cuenta. Intentá nuevamente.");
+      
+      // Mostrar mensaje específico según el código de error
+      if (error instanceof ApiError) {
+        if (error.isEmailAlreadyExists()) {
+          toast.error("Ya existe una cuenta con ese email.");
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          // Mostrar el primer error de validación
+          toast.error(error.details[0]);
+        } else {
+          toast.error(error.message || "Error al crear la cuenta. Intentá nuevamente.");
+        }
+      } else {
+        toast.error("Error al crear la cuenta. Intentá nuevamente.");
+      }
+      
       throw error;
     }
   };

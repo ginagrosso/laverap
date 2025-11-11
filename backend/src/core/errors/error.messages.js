@@ -28,6 +28,7 @@ const ERROR_MESSAGES = {
   [ERROR_CODES.SERVICE_INVALID_MODEL]: 'El modelo de precio del servicio no es válido.',
   [ERROR_CODES.SERVICE_ALREADY_ACTIVE]: 'Este servicio ya está activo.',
   [ERROR_CODES.SERVICE_ALREADY_INACTIVE]: 'Este servicio ya está desactivado.',
+  [ERROR_CODES.SERVICE_NAME_ALREADY_EXISTS]: 'Ya existe un servicio con ese nombre.',
   
   // Usuarios
   [ERROR_CODES.USER_NOT_FOUND]: 'El usuario solicitado no existe.',

@@ -26,6 +26,7 @@ import { createOrder } from "@/lib/orders";
 import { getAllUsers, createUser } from "@/lib/users";
 import { useAuth } from "@/context/AuthContext";
 import { Service, CreateOrderRequest, User, CreateUserRequest } from "@/types";
+import { ApiError } from "@/lib/api";
 
 export const CreateOrderForm = () => {
   const navigate = useNavigate();
@@ -98,10 +99,28 @@ export const CreateOrderForm = () => {
       });
       setPasswordModalOpen(true);
     },
-    onError: (error: any) => {
-      toast.error("Error al crear cliente", {
-        description: error.message || "Por favor intentá nuevamente.",
-      });
+    onError: (error) => {
+      console.error("Error creating client:", error);
+      
+      if (error instanceof ApiError) {
+        if (error.isEmailAlreadyExists()) {
+          toast.error("Email duplicado", {
+            description: "Ya existe un cliente con ese email.",
+          });
+        } else if (error.isValidationError() && error.details && error.details.length > 0) {
+          toast.error("Error de validación", {
+            description: error.details[0],
+          });
+        } else {
+          toast.error("Error al crear cliente", {
+            description: error.message || "Por favor intentá nuevamente.",
+          });
+        }
+      } else {
+        toast.error("Error al crear cliente", {
+          description: "Por favor intentá nuevamente.",
+        });
+      }
     },
   });
 
@@ -220,11 +239,30 @@ export const CreateOrderForm = () => {
       setTimeout(() => {
         navigate(isAdmin ? "/admin/orders" : "/order/track");
       }, 1500);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error creating order:", err);
-      toast.error("Error al crear el pedido", {
-        description: err.message || "Por favor intentá nuevamente.",
-      });
+      
+      // Mostrar mensaje específico según el código de error
+      if (err instanceof ApiError) {
+        if (err.isInvalidService()) {
+          toast.error("Servicio inválido", {
+            description: "El servicio seleccionado no existe o no está disponible.",
+          });
+        } else if (err.isValidationError() && err.details && err.details.length > 0) {
+          // Mostrar el primer error de validación
+          toast.error("Error de validación", {
+            description: err.details[0],
+          });
+        } else {
+          toast.error("Error al crear el pedido", {
+            description: err.message || "Por favor intentá nuevamente.",
+          });
+        }
+      } else {
+        toast.error("Error al crear el pedido", {
+          description: "Por favor intentá nuevamente.",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -8,12 +8,14 @@ const { campoFirebaseId, campoObservaciones } = require('./common.schemas');
 // Schema para crear un nuevo pedido
 const crearPedidoSchema = joi.object({
   clienteId: campoFirebaseId.optional().messages({
-    'string.length': 'El ID del cliente no es válido.'
+    'string.length': 'El ID del cliente no es válido. Debe tener 20 caracteres.',
+    'string.empty': 'El ID del cliente no puede estar vacío.'
   }),
   
   servicioId: campoFirebaseId.messages({
-    'string.empty': 'El ID del servicio es obligatorio.',
-    'string.length': 'El ID del servicio no es válido.'
+    'string.empty': 'Debés seleccionar un servicio para crear el pedido.',
+    'string.length': 'El ID del servicio no es válido. Debe tener 20 caracteres.',
+    'any.required': 'El servicio es obligatorio para crear un pedido.'
   }),
   
   detalle: joi.alternatives().try(

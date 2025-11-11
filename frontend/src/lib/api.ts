@@ -7,7 +7,8 @@ export class ApiError extends Error {
     public status: number,
     message: string,
     public data?: unknown,
-    public details?: string[]
+    public details?: string[],
+    public code?: string
   ) {
     super(message);
     this.name = "ApiError";
@@ -23,6 +24,51 @@ export class ApiError extends Error {
 
   getDetails(): string[] {
     return this.details || [];
+  }
+
+  getCode(): string | undefined {
+    return this.code;
+  }
+
+  // Auth error helpers
+  isEmailNotFound(): boolean {
+    return this.code === 'AUTH_003';
+  }
+
+  isInvalidPassword(): boolean {
+    return this.code === 'AUTH_004';
+  }
+
+  isEmailAlreadyExists(): boolean {
+    return this.code === 'AUTH_005' || this.code === 'USER_003';
+  }
+
+  // Service error helpers
+  isServiceNotFound(): boolean {
+    return this.code === 'SERVICE_001';
+  }
+
+  isServiceNameAlreadyExists(): boolean {
+    return this.code === 'SERVICE_006';
+  }
+
+  // Order error helpers
+  isOrderNotFound(): boolean {
+    return this.code === 'ORDER_001';
+  }
+
+  isInvalidService(): boolean {
+    return this.code === 'ORDER_002';
+  }
+
+  // User error helpers
+  isUserNotFound(): boolean {
+    return this.code === 'USER_001';
+  }
+
+  // Validation error helper
+  isValidationError(): boolean {
+    return this.code === 'VALIDATION_001' || this.code === 'VALIDATION_002';
   }
 }
 
@@ -67,6 +113,7 @@ async function fetchApi<T>(
     // Backend error format: { success: false, error: { code, message, details? } }
     const errorMessage = data?.error?.message || data?.message || `Request failed with status ${response.status}`;
     const errorDetails = data?.error?.details;
+    const errorCode = data?.error?.code;
 
     // Automatic logout on 401 (token expired or invalid)
     if (response.status === 401 && logoutCallback) {
@@ -77,7 +124,8 @@ async function fetchApi<T>(
       response.status,
       errorMessage,
       data,
-      errorDetails
+      errorDetails,
+      errorCode
     );
   }
 
@@ -117,13 +165,18 @@ export { API_BASE_URL };
 
 /**
  * Format API error for display to user
- * Returns main message and optional detail list
+ * Returns main message, optional detail list, and error code
  */
-export function formatApiError(error: unknown): { message: string; details: string[] } {
+export function formatApiError(error: unknown): { 
+  message: string; 
+  details: string[];
+  code?: string;
+} {
   if (error instanceof ApiError) {
     return {
       message: error.message,
       details: error.getDetails(),
+      code: error.getCode(),
     };
   }
 
@@ -135,7 +188,7 @@ export function formatApiError(error: unknown): { message: string; details: stri
   }
 
   return {
-    message: "An unexpected error occurred",
+    message: "Ocurrió un error inesperado",
     details: [],
   };
 }

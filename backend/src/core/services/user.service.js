@@ -1,6 +1,8 @@
 const db = require('../../config/firebase.config');
 const admin = require('firebase-admin');
 const bcrypt = require('bcryptjs');
+const AppError = require('../errors/AppError');
+const ERROR_CODES = require('../errors/error.codes');
 
 // Genera password temporal aleatoria de 8 caracteres alfanuméricos
 const generateTemporaryPassword = () => {
@@ -132,9 +134,11 @@ const createUser = async (userData) => {
   // Verificar si el email ya existe
   const existingUser = await db.collection('clientes').where('email', '==', email.toLowerCase()).get();
   if (!existingUser.empty) {
-    const error = new Error('Ya existe un usuario con ese email.');
-    error.code = 'USER_EMAIL_EXISTS';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_EMAIL_EXISTS,
+      'Ya existe un usuario con ese email.',
+      400
+    );
   }
   
   // Generar password temporal
@@ -173,9 +177,11 @@ const changeUserRole = async (userId, newRole) => {
   const userDoc = await userRef.get();
   
   if (!userDoc.exists) {
-    const error = new Error('Usuario no encontrado.');
-    error.code = 'USER_NOT_FOUND';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_NOT_FOUND,
+      'El usuario solicitado no existe.',
+      404
+    );
   }
   
   const currentUser = userDoc.data();
@@ -196,9 +202,11 @@ const changeUserRole = async (userId, newRole) => {
     });
     
     if (activeAdminsCount <= 1) {
-      const error = new Error('No puedes cambiar el rol del último administrador.');
-      error.code = 'USER_CANNOT_DEMOTE_LAST_ADMIN';
-      throw error;
+      throw new AppError(
+        ERROR_CODES.USER_CANNOT_DEMOTE_LAST_ADMIN,
+        'No puedes cambiar el rol del último administrador.',
+        400
+      );
     }
   }
   
@@ -215,27 +223,33 @@ const changeUserRole = async (userId, newRole) => {
 const deactivateUser = async (userId, adminId) => {
   // Validar que no se desactive a sí mismo
   if (userId === adminId) {
-    const error = new Error('No puedes desactivar tu propia cuenta.');
-    error.code = 'USER_CANNOT_DEACTIVATE_SELF';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_CANNOT_DEACTIVATE_SELF,
+      'No puedes desactivar tu propia cuenta.',
+      400
+    );
   }
   
   const userRef = db.collection('clientes').doc(userId);
   const userDoc = await userRef.get();
   
   if (!userDoc.exists) {
-    const error = new Error('Usuario no encontrado.');
-    error.code = 'USER_NOT_FOUND';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_NOT_FOUND,
+      'El usuario solicitado no existe.',
+      404
+    );
   }
   
   const userData = userDoc.data();
   const isActive = userData.activo !== undefined ? userData.activo : true;
   
   if (!isActive) {
-    const error = new Error('Este usuario ya está inactivo.');
-    error.code = 'USER_ALREADY_INACTIVE';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_ALREADY_INACTIVE,
+      'Este usuario ya está inactivo.',
+      400
+    );
   }
   
   // Desactivar usuario
@@ -254,18 +268,22 @@ const activateUser = async (userId) => {
   const userDoc = await userRef.get();
   
   if (!userDoc.exists) {
-    const error = new Error('Usuario no encontrado.');
-    error.code = 'USER_NOT_FOUND';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_NOT_FOUND,
+      'El usuario solicitado no existe.',
+      404
+    );
   }
   
   const userData = userDoc.data();
   const isActive = userData.activo !== undefined ? userData.activo : true;
   
   if (isActive) {
-    const error = new Error('Este usuario ya está activo.');
-    error.code = 'USER_ALREADY_ACTIVE';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_ALREADY_ACTIVE,
+      'Este usuario ya está activo.',
+      400
+    );
   }
   
   // Reactivar usuario (eliminar campo fechaDesactivacion)
@@ -284,9 +302,11 @@ const deleteUser = async (userId) => {
   const userDoc = await userRef.get();
   
   if (!userDoc.exists) {
-    const error = new Error('Usuario no encontrado.');
-    error.code = 'USER_NOT_FOUND';
-    throw error;
+    throw new AppError(
+      ERROR_CODES.USER_NOT_FOUND,
+      'El usuario solicitado no existe.',
+      404
+    );
   }
   
   // Validar que no tenga pedidos activos
@@ -306,9 +326,11 @@ const deleteUser = async (userId) => {
     });
     
     if (hasActiveOrders) {
-      const error = new Error('No se puede eliminar un usuario con pedidos activos.');
-      error.code = 'USER_HAS_ACTIVE_ORDERS';
-      throw error;
+      throw new AppError(
+        ERROR_CODES.USER_HAS_ACTIVE_ORDERS,
+        'No se puede eliminar un usuario con pedidos activos.',
+        400
+      );
     }
   }
   
