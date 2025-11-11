@@ -17,7 +17,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
-// Opcional: Creamos una referencia a la base de datos de Firestore
+//Creamos una referencia a la base de datos de Firestore
 const db = admin.firestore();
 
 console.log('Firebase conectado correctamente.');
