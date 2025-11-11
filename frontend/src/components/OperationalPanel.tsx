@@ -42,7 +42,7 @@ export const OperationalPanel = () => {
   const [editFormData, setEditFormData] = useState({
     servicioId: "",
     cantidad: 1,
-    incluyePlanchado: false,
+    adicionalesSeleccionados: {} as Record<string, boolean>,
     opcionSeleccionada: "",
     opcionesMultiples: {} as Record<string, string>,
     observaciones: "",
@@ -227,10 +227,18 @@ export const OperationalPanel = () => {
       });
     }
 
+    // Convertir array de adicionales a objeto de checkboxes
+    const adicionalesSeleccionados: Record<string, boolean> = {};
+    if (detalle.adicionales && Array.isArray(detalle.adicionales)) {
+      detalle.adicionales.forEach((nombre: string) => {
+        adicionalesSeleccionados[nombre] = true;
+      });
+    }
+
     setEditFormData({
       servicioId: order.servicio.id,
       cantidad: detalle.cantidad || 1,
-      incluyePlanchado: detalle.incluyePlanchado || false,
+      adicionalesSeleccionados,
       opcionSeleccionada: detalle.opcion || detalle.opcionSeleccionada || "",
       opcionesMultiples,
       observaciones: order.observaciones || "",
@@ -254,12 +262,21 @@ export const OperationalPanel = () => {
     let detalle: any = {};
 
     switch (selectedService.modeloDePrecio) {
-      case "paqueteConAdicional":
+      case "paqueteConAdicional": {
+        // Convertir objeto de checkboxes a array de strings
+        const adicionales = Object.entries(editFormData.adicionalesSeleccionados)
+          .filter(([_, isSelected]) => isSelected)
+          .map(([nombre]) => nombre);
+        
         detalle = {
           cantidad: editFormData.cantidad,
-          incluyePlanchado: editFormData.incluyePlanchado,
         };
+        
+        if (adicionales.length > 0) {
+          detalle.adicionales = adicionales;
+        }
         break;
+      }
       case "porOpciones":
         if (!editFormData.opcionSeleccionada) {
           toast.error("Seleccioná una opción");
@@ -304,10 +321,10 @@ export const OperationalPanel = () => {
         ...prev,
         opcionSeleccionada: "",
         opcionesMultiples: {},
-        incluyePlanchado: false,
+        adicionalesSeleccionados: {},
       }));
     }
-  }, [editFormData.servicioId]);
+  }, [editFormData.servicioId, editModalOpen]);
 
   const selectedServiceForEdit = services.find((s) => s.id === editFormData.servicioId);
 
@@ -318,12 +335,18 @@ export const OperationalPanel = () => {
     let total = 0;
 
     switch (selectedServiceForEdit.modeloDePrecio) {
-      case "paqueteConAdicional":
+      case "paqueteConAdicional": {
         total = editFormData.cantidad * (selectedServiceForEdit.precioBase || 0);
-        if (editFormData.incluyePlanchado && selectedServiceForEdit.adicionales?.planchado) {
-          total += editFormData.cantidad * selectedServiceForEdit.adicionales.planchado;
+        // Sumar todos los adicionales seleccionados
+        if (selectedServiceForEdit.adicionales) {
+          Object.entries(editFormData.adicionalesSeleccionados).forEach(([nombre, isSelected]) => {
+            if (isSelected && selectedServiceForEdit.adicionales?.[nombre]) {
+              total += editFormData.cantidad * selectedServiceForEdit.adicionales[nombre];
+            }
+          });
         }
         break;
+      }
 
       case "porOpciones":
         if (editFormData.opcionSeleccionada && selectedServiceForEdit.opciones) {
@@ -760,26 +783,36 @@ export const OperationalPanel = () => {
                 />
               </div>
 
-              {/* Planchado option for paqueteConAdicional */}
+              {/* Adicionales options for paqueteConAdicional */}
               {selectedServiceForEdit?.modeloDePrecio === "paqueteConAdicional" &&
-                selectedServiceForEdit.adicionales?.planchado && (
-                  <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                    <input
-                      type="checkbox"
-                      id="edit-planchado"
-                      checked={editFormData.incluyePlanchado}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          incluyePlanchado: e.target.checked,
-                        })
-                      }
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="edit-planchado" className="cursor-pointer">
-                      Incluir planchado (+${selectedServiceForEdit.adicionales.planchado} por
-                      paquete)
-                    </Label>
+                selectedServiceForEdit.adicionales && 
+                Object.keys(selectedServiceForEdit.adicionales).length > 0 && (
+                  <div className="space-y-3">
+                    <Label>Adicionales (opcional)</Label>
+                    <div className="space-y-2">
+                      {Object.entries(selectedServiceForEdit.adicionales).map(([nombre, precio]) => (
+                        <div key={nombre} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                          <input
+                            type="checkbox"
+                            id={`edit-adicional-${nombre}`}
+                            checked={editFormData.adicionalesSeleccionados?.[nombre] || false}
+                            onChange={(e) => {
+                              setEditFormData({
+                                ...editFormData,
+                                adicionalesSeleccionados: {
+                                  ...(editFormData.adicionalesSeleccionados || {}),
+                                  [nombre]: e.target.checked
+                                }
+                              });
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <Label htmlFor={`edit-adicional-${nombre}`} className="cursor-pointer flex-1">
+                            Incluir {nombre} (+${precio} por paquete)
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 

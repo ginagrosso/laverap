@@ -69,7 +69,7 @@ export const CreateOrderForm = () => {
   // Form state
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
   const [cantidad, setCantidad] = useState<number>(1);
-  const [incluyePlanchado, setIncluyePlanchado] = useState(false);
+  const [adicionalesSeleccionados, setAdicionalesSeleccionados] = useState<Record<string, boolean>>({});
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string>("");
   const [opcionesMultiples, setOpcionesMultiples] = useState<Record<string, string>>({});
   const [observaciones, setObservaciones] = useState<string>("");
@@ -132,7 +132,7 @@ export const CreateOrderForm = () => {
   useEffect(() => {
     setOpcionSeleccionada("");
     setOpcionesMultiples({});
-    setIncluyePlanchado(false);
+    setAdicionalesSeleccionados({});
     setCantidad(1);
   }, [selectedServiceId]);
 
@@ -163,9 +163,16 @@ export const CreateOrderForm = () => {
       let detalle: any = { cantidad };
 
       switch (selectedService?.modeloDePrecio) {
-        case "paqueteConAdicional":
-          detalle.incluyePlanchado = incluyePlanchado;
+        case "paqueteConAdicional": {
+          // Enviar adicionales seleccionados como array de strings
+          const adicionales = Object.entries(adicionalesSeleccionados)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([nombre]) => nombre);
+          if (adicionales.length > 0) {
+            detalle.adicionales = adicionales;
+          }
           break;
+        }
         case "porOpciones":
           if (!opcionSeleccionada) {
             toast.error("Por favor seleccioná una opción");
@@ -230,12 +237,18 @@ export const CreateOrderForm = () => {
     let total = 0;
 
     switch (selectedService.modeloDePrecio) {
-      case "paqueteConAdicional":
+      case "paqueteConAdicional": {
         total = cantidad * (selectedService.precioBase || 0);
-        if (incluyePlanchado && selectedService.adicionales?.planchado) {
-          total += cantidad * selectedService.adicionales.planchado;
+        // Sumar todos los adicionales seleccionados
+        if (selectedService.adicionales) {
+          Object.entries(adicionalesSeleccionados).forEach(([nombre, isSelected]) => {
+            if (isSelected && selectedService.adicionales?.[nombre]) {
+              total += cantidad * selectedService.adicionales[nombre];
+            }
+          });
         }
         break;
+      }
 
       case "porOpciones":
         if (opcionSeleccionada && selectedService.opciones) {
@@ -522,22 +535,35 @@ export const CreateOrderForm = () => {
                   )}
                 </div>
 
-                {/* Planchado option for paqueteConAdicional */}
+                {/* Adicionales options for paqueteConAdicional */}
                 {selectedService?.modeloDePrecio === "paqueteConAdicional" &&
-                  selectedService.adicionales?.planchado && (
-                    <div className="flex items-center space-x-2 p-4 border rounded-lg">
-                      <input
-                        type="checkbox"
-                        id="planchado"
-                        checked={incluyePlanchado}
-                        onChange={(e) => setIncluyePlanchado(e.target.checked)}
-                        className="w-4 h-4"
-                        disabled={isSubmitting}
-                        aria-label="Incluir planchado"
-                      />
-                      <Label htmlFor="planchado" className="cursor-pointer">
-                        Incluir planchado (+${selectedService.adicionales.planchado} por paquete)
-                      </Label>
+                  selectedService.adicionales && 
+                  Object.keys(selectedService.adicionales).length > 0 && (
+                    <div className="space-y-3">
+                      <Label>Adicionales (opcional)</Label>
+                      <div className="space-y-2">
+                        {Object.entries(selectedService.adicionales).map(([key, precio]) => (
+                          <div key={key} className="flex items-center space-x-2 p-4 border rounded-lg hover:bg-accent/5 transition-colors">
+                            <input
+                              type="checkbox"
+                              id={`adicional-${key}`}
+                              checked={adicionalesSeleccionados[key] || false}
+                              onChange={(e) => {
+                                setAdicionalesSeleccionados(prev => ({
+                                  ...prev,
+                                  [key]: e.target.checked
+                                }));
+                              }}
+                              className="w-4 h-4"
+                              disabled={isSubmitting}
+                              aria-label={`Incluir ${key}`}
+                            />
+                            <Label htmlFor={`adicional-${key}`} className="cursor-pointer flex-1">
+                              Incluir {key} (+${precio} por paquete)
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
